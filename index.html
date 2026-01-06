@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- FAVICON -->
+  <!-- FAVICON WEB -->
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="shortcut icon" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/favicon.png">
@@ -15,7 +15,6 @@
     :root {
       --accent: #8A4EFF;
       --bg-main: #18181b;
-      --bg-card: #1f1f24;
       --text-main: #e5e5e5;
       --text-muted: #9ca3af;
       --border-soft: rgba(255,255,255,0.06);
@@ -42,12 +41,12 @@
     .container {
       max-width: 1100px;
       margin: auto;
-      padding: 40px 20px 100px;
+      padding: 40px 20px 120px;
     }
 
     /* HEADER */
     header {
-      margin-bottom: 60px;
+      margin-bottom: 56px;
     }
 
     header h1 {
@@ -60,25 +59,6 @@
       max-width: 520px;
       color: var(--text-muted);
       line-height: 1.6;
-    }
-
-    /* BUTTONS */
-    .btn-primary {
-      display: inline-block;
-      margin-top: 22px;
-      padding: 12px 26px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #8A4EFF, #6f3cff);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 500;
-      box-shadow: 0 0 0 0 rgba(138,78,255,0.6);
-      transition: all .25s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 0 6px rgba(138,78,255,0.25);
     }
 
     /* SECTION */
@@ -102,7 +82,7 @@
       border-radius: 50%;
     }
 
-    /* GRID & CARD */
+    /* BLOG */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -153,7 +133,7 @@
       color: #fff;
     }
 
-    /* LINK BUTTONS */
+    /* OFFICIAL LINKS */
     .link-list {
       display: flex;
       flex-wrap: wrap;
@@ -161,7 +141,10 @@
     }
 
     .link-btn {
-      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
       border-radius: 12px;
       background: linear-gradient(
         135deg,
@@ -169,9 +152,14 @@
         rgba(138,78,255,0.05)
       );
       border: 1px solid rgba(138,78,255,0.4);
-      color: #ddd;
       font-size: 0.9rem;
       transition: all .25s ease;
+    }
+
+    .link-btn img {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
     }
 
     .link-btn:hover {
@@ -180,7 +168,7 @@
       box-shadow: 0 0 0 4px rgba(138,78,255,0.25);
     }
 
-    /* FLOATING CTA */
+    /* FLOATING CTA (SATU-SATUNYA CTA) */
     .floating-cta {
       position: fixed;
       right: 22px;
@@ -212,17 +200,11 @@
 <body>
 
   <div class="container">
-    <!-- HEADER -->
     <header>
       <h1>Judul Website Dummy</h1>
       <p>
         Teks deskripsi dummy. Nanti bisa kamu isi sesuai identitas dan tujuan websitenya.
       </p>
-
-      <!-- PRIMARY CTA -->
-      <a href="/EO/index.html" class="btn-primary">
-        Order Video Editing
-      </a>
     </header>
 
     <!-- BLOG -->
@@ -231,32 +213,15 @@
       <div class="grid">
         <div class="card">
           <h3>Judul Artikel Dummy</h3>
-          <p>
-            Ringkasan artikel dummy untuk preview UX dan layout blog.
-          </p>
+          <p>Ringkasan artikel dummy untuk preview UX dan layout blog.</p>
           <a href="#" class="btn-outline">Baca</a>
         </div>
 
         <div class="card">
           <h3>Judul Artikel Dummy</h3>
-          <p>
-            Konten placeholder. Bisa ditambah tanpa mikir layout lagi.
-          </p>
+          <p>Konten placeholder. Bisa ditambah tanpa mikir layout lagi.</p>
           <a href="#" class="btn-outline">Baca</a>
         </div>
-      </div>
-    </section>
-
-    <!-- CTA SECTION -->
-    <section>
-      <div class="card" style="text-align:center;">
-        <h3>Butuh Editor Video Profesional?</h3>
-        <p>
-          Teks CTA dummy. Jelaskan value, bukan teknis.
-        </p>
-        <a href="/EO/index.html" class="btn-primary">
-          Mulai Order
-        </a>
       </div>
     </section>
 
@@ -264,9 +229,20 @@
     <section>
       <h2>Official Links</h2>
       <div class="link-list">
-        <a href="#" class="link-btn">Link Official 1</a>
-        <a href="#" class="link-btn">Link Official 2</a>
-        <a href="#" class="link-btn">Link Official 3</a>
+        <a href="https://youtube.com" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=youtube.com">
+          YouTube
+        </a>
+
+        <a href="https://instagram.com" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=instagram.com">
+          Instagram
+        </a>
+
+        <a href="https://github.com" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=github.com">
+          GitHub
+        </a>
       </div>
     </section>
 
@@ -275,7 +251,7 @@
     </footer>
   </div>
 
-  <!-- FLOATING CTA -->
+  <!-- FLOATING ORDER BUTTON -->
   <a href="/EO/index.html" class="floating-cta">
     🎬 Order Editing
   </a>
