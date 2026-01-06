@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Home — Blog & Links</title>
+
+  <!-- FAVICON -->
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="shortcut icon" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/favicon.png">
+
+  <title>Home — Blog & Official Links</title>
 
   <style>
     :root {
@@ -23,49 +29,66 @@
     }
 
     body {
-      background: radial-gradient(
-        circle at top,
-        #202028,
-        var(--bg-main)
-      );
+      background: radial-gradient(circle at top, #202028, var(--bg-main));
       color: var(--text-main);
       min-height: 100vh;
     }
 
     a {
-      color: inherit;
       text-decoration: none;
+      color: inherit;
     }
 
     .container {
       max-width: 1100px;
       margin: auto;
-      padding: 40px 20px 80px;
+      padding: 40px 20px 100px;
     }
 
+    /* HEADER */
     header {
-      margin-bottom: 48px;
+      margin-bottom: 60px;
     }
 
     header h1 {
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       font-weight: 700;
-      letter-spacing: 0.4px;
     }
 
     header p {
-      margin-top: 8px;
-      color: var(--text-muted);
+      margin-top: 10px;
       max-width: 520px;
+      color: var(--text-muted);
+      line-height: 1.6;
     }
 
+    /* BUTTONS */
+    .btn-primary {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 12px 26px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #8A4EFF, #6f3cff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      box-shadow: 0 0 0 0 rgba(138,78,255,0.6);
+      transition: all .25s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 6px rgba(138,78,255,0.25);
+    }
+
+    /* SECTION */
     section {
-      margin-bottom: 56px;
+      margin-bottom: 64px;
     }
 
     section h2 {
       font-size: 1.4rem;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -79,10 +102,11 @@
       border-radius: 50%;
     }
 
+    /* GRID & CARD */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
+      gap: 22px;
     }
 
     .card {
@@ -93,48 +117,47 @@
       );
       border: 1px solid var(--border-soft);
       border-radius: 16px;
-      padding: 20px;
+      padding: 22px;
       transition: transform .25s ease, box-shadow .25s ease;
     }
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     }
 
     .card h3 {
       font-size: 1.05rem;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .card p {
       font-size: 0.9rem;
       color: var(--text-muted);
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .btn {
+    .btn-outline {
       display: inline-block;
       margin-top: 14px;
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 999px;
-      background: transparent;
       border: 1px solid var(--accent);
       color: var(--accent);
       font-size: 0.85rem;
       transition: all .25s ease;
     }
 
-    .btn:hover {
+    .btn-outline:hover {
       background: var(--accent);
       color: #fff;
     }
 
-    /* Link Buttons */
+    /* LINK BUTTONS */
     .link-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 14px;
     }
 
     .link-btn {
@@ -157,6 +180,27 @@
       box-shadow: 0 0 0 4px rgba(138,78,255,0.25);
     }
 
+    /* FLOATING CTA */
+    .floating-cta {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 999;
+      padding: 14px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #8A4EFF, #6f3cff);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(138,78,255,0.45);
+      transition: all .25s ease;
+    }
+
+    .floating-cta:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(138,78,255,0.6);
+    }
+
     footer {
       margin-top: 80px;
       text-align: center;
@@ -168,34 +212,51 @@
 <body>
 
   <div class="container">
+    <!-- HEADER -->
     <header>
       <h1>Judul Website Dummy</h1>
       <p>
-        Teks deskripsi singkat dummy. Nanti bisa kamu ganti sesuai kebutuhan.
+        Teks deskripsi dummy. Nanti bisa kamu isi sesuai identitas dan tujuan websitenya.
       </p>
+
+      <!-- PRIMARY CTA -->
+      <a href="/EO/index.html" class="btn-primary">
+        Order Video Editing
+      </a>
     </header>
 
-    <!-- BLOG SECTION -->
+    <!-- BLOG -->
     <section>
       <h2>Blog</h2>
       <div class="grid">
-        <!-- BLOG ITEM -->
         <div class="card">
           <h3>Judul Artikel Dummy</h3>
           <p>
-            Ringkasan artikel dummy. Konten ini hanya placeholder untuk
-            memastikan layout dan UX berjalan baik.
+            Ringkasan artikel dummy untuk preview UX dan layout blog.
           </p>
-          <a href="#" class="btn">Baca</a>
+          <a href="#" class="btn-outline">Baca</a>
         </div>
 
         <div class="card">
           <h3>Judul Artikel Dummy</h3>
           <p>
-            Ringkasan artikel dummy. Kamu bebas nambah card sebanyak apapun.
+            Konten placeholder. Bisa ditambah tanpa mikir layout lagi.
           </p>
-          <a href="#" class="btn">Baca</a>
+          <a href="#" class="btn-outline">Baca</a>
         </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section>
+      <div class="card" style="text-align:center;">
+        <h3>Butuh Editor Video Profesional?</h3>
+        <p>
+          Teks CTA dummy. Jelaskan value, bukan teknis.
+        </p>
+        <a href="/EO/index.html" class="btn-primary">
+          Mulai Order
+        </a>
       </div>
     </section>
 
@@ -203,7 +264,6 @@
     <section>
       <h2>Official Links</h2>
       <div class="link-list">
-        <!-- TINGGAL DUPLIKASI BARIS INI -->
         <a href="#" class="link-btn">Link Official 1</a>
         <a href="#" class="link-btn">Link Official 2</a>
         <a href="#" class="link-btn">Link Official 3</a>
@@ -214,6 +274,11 @@
       © 2026 — Dummy Footer Text
     </footer>
   </div>
+
+  <!-- FLOATING CTA -->
+  <a href="/EO/index.html" class="floating-cta">
+    🎬 Order Editing
+  </a>
 
 </body>
 </html>
