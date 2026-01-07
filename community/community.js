@@ -406,13 +406,13 @@ function buildNoticeMeta(post, today, { compact = false } = {}) {
 
   if (post.startRaw) {
     const start = document.createElement("span");
-    start.textContent = `Mulai: ${post.startRaw}`;
+    start.textContent = `Publish: ${post.startRaw}`;
     meta.appendChild(start);
   }
 
   if (post.endRaw) {
     const end = document.createElement("span");
-    end.textContent = `Selesai: ${post.endRaw}`;
+    end.textContent = `Expired: ${post.endRaw}`;
     meta.appendChild(end);
   }
 
