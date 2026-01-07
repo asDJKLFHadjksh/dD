@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- FAVICON -->
+  <!-- FAVICON WEB -->
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <link rel="shortcut icon" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/favicon.png">
 
-  <title>Server Tutup</title>
+  <title>Home — Kuhyakuya Studio</title>
 
   <style>
     :root {
@@ -17,7 +17,7 @@
       --bg-main: #18181b;
       --text-main: #e5e5e5;
       --text-muted: #9ca3af;
-      --border-soft: rgba(255,255,255,0.08);
+      --border-soft: rgba(255,255,255,0.06);
     }
 
     * {
@@ -28,77 +28,233 @@
     }
 
     body {
-      min-height: 100vh;
       background: radial-gradient(circle at top, #202028, var(--bg-main));
-      display: flex;
-      align-items: center;
-      justify-content: center;
       color: var(--text-main);
+      min-height: 100vh;
     }
 
-    .wrapper {
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 40px 20px 120px;
+    }
+
+    /* HEADER */
+    header {
+      margin-bottom: 56px;
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+    }
+
+    header p {
+      margin-top: 10px;
       max-width: 520px;
-      padding: 40px 28px;
-      border-radius: 18px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* SECTION */
+    section {
+      margin-bottom: 64px;
+    }
+
+    section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* BLOG */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
       background: linear-gradient(
         180deg,
-        rgba(255,255,255,0.04),
+        rgba(255,255,255,0.03),
         rgba(255,255,255,0.01)
       );
       border: 1px solid var(--border-soft);
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      border-radius: 16px;
+      padding: 22px;
+      transition: transform .25s ease, box-shadow .25s ease;
     }
 
-    .status-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      margin: 0 auto 18px;
-      background: var(--accent);
-      box-shadow: 0 0 0 6px rgba(138,78,255,0.25);
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
+    .card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
     }
 
-    p {
+    .card p {
+      font-size: 0.9rem;
       color: var(--text-muted);
       line-height: 1.6;
-      font-size: 0.95rem;
-      margin-bottom: 26px;
     }
 
-    .note {
-      font-size: 0.8rem;
-      color: #b4b4b4;
-      opacity: 0.85;
-    }
-
-    .accent {
+    .btn-outline {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
       color: var(--accent);
-      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all .25s ease;
+    }
+
+    .btn-outline:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* OFFICIAL LINKS */
+    .link-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .link-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: linear-gradient(
+        135deg,
+        rgba(138,78,255,0.15),
+        rgba(138,78,255,0.05)
+      );
+      border: 1px solid rgba(138,78,255,0.4);
+      font-size: 0.9rem;
+      transition: all .25s ease;
+    }
+
+    .link-btn img {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+    }
+
+    .link-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(138,78,255,0.25);
+    }
+
+    /* FLOATING CTA (SATU-SATUNYA CTA) */
+    .floating-cta {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 999;
+      padding: 14px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #8A4EFF, #6f3cff);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(138,78,255,0.45);
+      transition: all .25s ease;
+    }
+
+    .floating-cta:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(138,78,255,0.6);
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
 <body>
 
-  <div class="wrapper">
-    <div class="status-dot"></div>
+  <div class="container">
+    <header>
+      <h1>KuhyaKuya Studio</h1>
+      <p>
+        Komunitas • Kreatif • Business
+      </p>
+    </header>
 
-    <h1>Server Sedang Tutup</h1>
-    <p>
-      Website sedang ditutup sementara untuk suatu penyesuaian.
-      Kami akan kembali nanti dengan kondisi yang lebih baik.
-    </p>
+    <!-- BLOG -->
+    <section>
+      <h2>Blog</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Judul Artikel Dummy</h3>
+          <p>Ringkasan artikel dummy untuk preview UX dan layout blog.</p>
+          <a href="#" class="btn-outline">Baca</a>
+        </div>
 
-    <p class="note">
-      Terima kasih sudah mampir 🤍  
-      <span class="accent">Silakan cek kembali nanti.</span>
-    </p>
+        <div class="card">
+          <h3>Pengumuman</h3>
+          <p>Saat Ini tidak ada pengumuman</p>
+          <a href="#" class="btn-outline">Baca</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- OFFICIAL LINKS -->
+    <section>
+      <h2>Community & Social Links</h2>
+      <div class="link-list">
+        <a href="https://kuhyakuya.com/go/?to=yt" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=youtube.com">
+          YouTube Animation
+        </a>
+
+        <a href="https://kuhyakuya.com/go/?to=ig" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=instagram.com">
+          Instagram
+        </a>
+
+        <a href="https://kuhyakuya.com/go/?to=dc" class="link-btn" target="_blank">
+          <img src="https://www.google.com/s2/favicons?sz=64&domain=discord.com">
+          Discord Server
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      © 2025 — Kuhyakuya 
+    </footer>
   </div>
+
+  <!-- FLOATING ORDER BUTTON -->
+  <a href="/EO/index.html" class="floating-cta">
+    🎬 Order Editing
+  </a>
 
 </body>
 </html>
