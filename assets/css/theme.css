@@ -11,6 +11,7 @@
   --site-border: rgba(255, 255, 255, 0.06);
   --site-glass: rgba(255, 255, 255, 0.06);
   --site-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --site-font: Arial, Helvetica, "Liberation Sans";
 }
 
 * {
@@ -18,7 +19,7 @@
 }
 
 body {
-  font-family: Arial, Helvetica, "Liberation Sans";
+  font-family: var(--site-font);
   background: radial-gradient(circle at top, var(--site-bg-soft), var(--site-bg));
   color: var(--site-text);
   min-height: 100vh;
