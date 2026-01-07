@@ -13,6 +13,7 @@
 
   <link rel="stylesheet" href="assets/css/theme.css">
   <link rel="stylesheet" href="assets/css/theme-custom.css">
+  <link rel="stylesheet" href="/community/community.css">
 
   <style>
     :root {
@@ -219,8 +220,10 @@
       <div class="grid">
         <div class="card">
           <h3>Pemberitahuan</h3>
-          <p>Belum ada pemberitahuan terbaru untuk saat ini.</p>
-          <a href="#" class="btn-outline">Lihat semua</a>
+          <div id="noticeLatest">
+            <p class="notice-empty">Memuat pemberitahuan...</p>
+          </div>
+          <a href="/community/postingan.html" class="btn-outline">Lihat semua</a>
         </div>
 
         <div class="card">
@@ -249,5 +252,6 @@
   </a>
 
   <script src="assets/js/link-list.js"></script>
+  <script src="/community/community.js"></script>
 </body>
 </html>
