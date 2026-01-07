@@ -21,25 +21,38 @@
     dc: "https://discord.com/invite/YqKVt4CREE"
   };
 
+  const DEFAULT_FAVICON = "/img/favicon.png";
   const params = new URLSearchParams(window.location.search);
-  const target = params.get("to");
+  const targetKey = (params.get("to") || "").trim().toLowerCase();
+  const targetUrl = routes[targetKey];
+
+  const ensureFaviconLink = () => {
+    let link = document.querySelector('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      link.type = "image/png";
+      document.head.appendChild(link);
+    }
+    return link;
+  };
 
   const getFaviconUrl = (linkUrl) => {
     try {
       const { hostname } = new URL(linkUrl);
       return `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
     } catch (error) {
-      return "/img/favicon.png";
+      return DEFAULT_FAVICON;
     }
   };
 
-  if (target && routes[target]) {
-    const favicon = document.getElementById("redirect-favicon");
-    if (favicon) {
-      favicon.href = getFaviconUrl(routes[target]);
-    }
-    window.location.replace(routes[target]);
+  const favicon = ensureFaviconLink();
+
+  if (targetUrl) {
+    favicon.href = getFaviconUrl(targetUrl);
+    window.location.replace(targetUrl);
   } else {
+    favicon.href = DEFAULT_FAVICON;
     window.location.replace("https://kuhyakuya.com/go/fallback.html");
   }
 </script>
