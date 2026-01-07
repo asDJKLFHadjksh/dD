@@ -336,14 +336,6 @@ function buildNoticeMeta(post, today, { compact = false } = {}) {
   const meta = document.createElement("div");
   meta.className = compact ? "notice-meta notice-meta--compact" : "notice-meta";
 
-  const status = getStatusInfo(post, today);
-  if (status && status.badge) {
-    const statusBadge = document.createElement("span");
-    statusBadge.className = "notice-meta__status";
-    statusBadge.textContent = status.badge;
-    meta.appendChild(statusBadge);
-  }
-
   if (post.startRaw) {
     const start = document.createElement("span");
     start.textContent = `Mulai: ${post.startRaw}`;
