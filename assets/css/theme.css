@@ -18,7 +18,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Arial, Helvetica, "Liberation Sans";
   background: radial-gradient(circle at top, var(--site-bg-soft), var(--site-bg));
   color: var(--site-text);
   min-height: 100vh;

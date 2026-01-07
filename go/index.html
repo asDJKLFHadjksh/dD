@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting...</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png" id="redirect-favicon">
 </head>
 <body>
 <script>
-  // daftar tujuan redirect
   const routes = {
     youtube: "https://youtube.com/c/KuhyaKuya?sub_confirmation=1",
     yt: "https://youtube.com/c/KuhyaKuya?sub_confirmation=1",
@@ -21,15 +21,25 @@
     dc: "https://discord.com/invite/YqKVt4CREE"
   };
 
-  // ambil parameter ?to=
   const params = new URLSearchParams(window.location.search);
   const target = params.get("to");
 
-  // cek valid dan redirect
+  const getFaviconUrl = (linkUrl) => {
+    try {
+      const { hostname } = new URL(linkUrl);
+      return `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
+    } catch (error) {
+      return "/img/favicon.png";
+    }
+  };
+
   if (target && routes[target]) {
+    const favicon = document.getElementById("redirect-favicon");
+    if (favicon) {
+      favicon.href = getFaviconUrl(routes[target]);
+    }
     window.location.replace(routes[target]);
   } else {
-    // fallback kalau salah / kosong
     window.location.replace("https://kuhyakuya.com/go/fallback.html");
   }
 </script>
