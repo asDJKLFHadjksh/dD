@@ -4,9 +4,15 @@
   const emptyEl = document.querySelector('[data-link-empty]');
   if (!listEl) return;
 
-  const getFaviconUrl = (linkUrl) => {
+  const getFaviconUrl = (link) => {
+    if (link?.favicon) {
+      if (/^https?:\/\//i.test(link.favicon)) {
+        return link.favicon;
+      }
+      return `https://www.google.com/s2/favicons?sz=64&domain=${link.favicon}`;
+    }
     try {
-      const { hostname } = new URL(linkUrl);
+      const { hostname } = new URL(link.url);
       return `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
     } catch (error) {
       return 'https://www.google.com/s2/favicons?sz=64&domain=example.com';
@@ -38,7 +44,7 @@
       const icon = document.createElement('img');
       icon.loading = 'lazy';
       icon.alt = '';
-      icon.src = getFaviconUrl(link.url);
+      icon.src = getFaviconUrl(link);
 
       const text = document.createElement('span');
       text.textContent = link.label || link.url;
