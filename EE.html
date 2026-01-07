@@ -27,6 +27,8 @@
 
     .site-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;padding-bottom:40px;position:relative;padding-right:140px}
     .brand{display:flex;gap:12px;align-items:center}
+    .brand-link{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}
+    .brand-link:focus-visible{outline:2px solid var(--site-accent-soft);outline-offset:4px;border-radius:10px}
     .logo img{width:44px;height:44px;border-radius:8px;object-fit:cover}
     h1{font-size:18px}
     p.lead{color:var(--muted);font-size:13px;margin-top:4px;min-height:16px;transition:opacity .5s ease}
@@ -304,13 +306,15 @@
   <main class="container">
     <header class="site-header">
       <button id="openOrderBtn" type="button" class="btn-cek-status" title="Pantau ketersediaan file dan progres order secara real-time.">Order Tracker</button>
-      <div class="brand">
-        <div class="logo"><img src="img/Logo.png" alt="Logo"></div> <!-- path updated -->
-        <div>
-          <h1>KuhyaKuya Studio</h1>
-          <p class="lead" id="rotating-text">Hasil bisa di lihat di portofolio</p>
+      <a class="brand-link" href="index.html" aria-label="Kembali ke halaman utama">
+        <div class="brand">
+          <div class="logo"><img src="img/Logo.png" alt="Logo"></div> <!-- path updated -->
+          <div>
+            <h1>KuhyaKuya Studio</h1>
+            <p class="lead" id="rotating-text">Hasil bisa di lihat di portofolio</p>
+          </div>
         </div>
-      </div>
+      </a>
     </header>
 
     <section class="grid" id="packages"></section>
