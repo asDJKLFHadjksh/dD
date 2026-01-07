@@ -7,10 +7,17 @@ const MEDIA_BASE = new URL(
   "media/",
   document.currentScript?.src || window.location.href
 ).toString();
+const lightboxElements = {
+  overlay: document.querySelector(".notice-lightbox"),
+  image: document.querySelector(".notice-lightbox__image"),
+  closeButton: document.querySelector(".notice-lightbox__close"),
+};
 
 if (latestContainer || listContainer) {
   loadNotices();
 }
+
+setupLightbox();
 
 async function loadNotices() {
   try {
@@ -371,6 +378,7 @@ function buildNoticeMedia(url, title) {
   image.src = resolvedSrc;
   image.alt = title;
   image.loading = "lazy";
+  image.dataset.fullsrc = resolvedSrc;
   image.addEventListener("error", () => {
     wrapper.style.display = "none";
   });
@@ -422,6 +430,66 @@ function getStatusInfo(post, today) {
     tooltip: "Aktif / Sedang berlangsung",
     badge: "",
   };
+}
+
+function setupLightbox() {
+  const { overlay, image, closeButton } = lightboxElements;
+  if (!overlay || !image || !closeButton) {
+    return;
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target.closest(".notice-image");
+    if (!target) {
+      return;
+    }
+    event.preventDefault();
+    openLightbox(target);
+  });
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closeLightbox();
+    }
+  });
+
+  closeButton.addEventListener("click", () => {
+    closeLightbox();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && overlay.classList.contains("is-open")) {
+      closeLightbox();
+    }
+  });
+}
+
+function openLightbox(targetImage) {
+  const { overlay, image } = lightboxElements;
+  if (!overlay || !image) {
+    return;
+  }
+  const fullSrc =
+    targetImage.dataset.fullsrc || targetImage.currentSrc || targetImage.src;
+  if (!fullSrc) {
+    return;
+  }
+  image.src = fullSrc;
+  image.alt = targetImage.alt || "Preview gambar";
+  overlay.classList.add("is-open");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("notice-lightbox-open");
+}
+
+function closeLightbox() {
+  const { overlay, image } = lightboxElements;
+  if (!overlay || !image) {
+    return;
+  }
+  overlay.classList.remove("is-open");
+  overlay.setAttribute("aria-hidden", "true");
+  image.removeAttribute("src");
+  document.body.classList.remove("notice-lightbox-open");
 }
 
 // Gambar komunitas diambil dari folder media di repo.
