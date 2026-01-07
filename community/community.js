@@ -3,6 +3,10 @@ const CSV_URL =
 
 const latestContainer = document.getElementById("noticeLatest");
 const listContainer = document.getElementById("noticeList");
+const MEDIA_BASE = new URL(
+  "media/",
+  document.currentScript?.src || window.location.href
+).toString();
 
 if (latestContainer || listContainer) {
   loadNotices();
@@ -355,8 +359,8 @@ function buildNoticeMeta(post, today, { compact = false } = {}) {
 }
 
 function buildNoticeMedia(url, title) {
-  const normalizedUrl = normalizeDriveUrl(url);
-  if (!normalizedUrl) {
+  const resolvedSrc = resolveImageSrc(url);
+  if (!resolvedSrc) {
     return null;
   }
   const wrapper = document.createElement("div");
@@ -364,7 +368,7 @@ function buildNoticeMedia(url, title) {
 
   const image = document.createElement("img");
   image.className = "notice-image";
-  image.src = normalizedUrl;
+  image.src = resolvedSrc;
   image.alt = title;
   image.loading = "lazy";
   image.addEventListener("error", () => {
@@ -375,35 +379,21 @@ function buildNoticeMedia(url, title) {
   return wrapper;
 }
 
-function normalizeDriveUrl(url) {
-  if (!url) {
+function resolveImageSrc(valueFromSheet) {
+  if (!valueFromSheet) {
     return "";
   }
-  const trimmed = url.trim();
+  const trimmed = valueFromSheet.trim();
   if (!trimmed) {
     return "";
   }
-
-  const fileIdMatch = trimmed.match(
-    /drive\.google\.com\/file\/d\/([^/]+)\/(?:view|preview)/
-  );
-  if (fileIdMatch) {
-    return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
   }
-
-  const openIdMatch = trimmed.match(/drive\.google\.com\/open\?id=([^&]+)/);
-  if (openIdMatch) {
-    return `https://drive.google.com/uc?export=view&id=${openIdMatch[1]}`;
+  if (trimmed.includes("/")) {
+    return trimmed;
   }
-
-  const ucMatch = trimmed.match(
-    /(drive|docs)\.google\.com\/uc\?(?:[^#]*&)?id=([^&]+)/
-  );
-  if (ucMatch) {
-    return `https://drive.google.com/uc?export=view&id=${ucMatch[2]}`;
-  }
-
-  return trimmed;
+  return `${MEDIA_BASE}${trimmed}`;
 }
 
 function getStatusInfo(post, today) {
@@ -434,4 +424,4 @@ function getStatusInfo(post, today) {
   };
 }
 
-// Catatan: File Drive harus disetel public (anyone with link) agar gambar tampil.
+// Gambar komunitas diambil dari folder media di repo.
