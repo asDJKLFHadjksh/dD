@@ -4,12 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Order</title>
-  <link rel="icon" type="image/png" href="img/favicon.png"> <!-- set favicon -->
+  <link rel="icon" type="image/png" href="../img/favicon.png"> <!-- set favicon -->
   <meta name="description" content="Form order paket. Hitung harga otomatis, validasi deadline realistis, buffer fee, generate order code, kirim ke WhatsApp." />
+  <link rel="stylesheet" href="../assets/css/theme.css">
+  <link rel="stylesheet" href="../assets/css/theme-custom.css">
   <style>
-    :root{ --bg:#1D1D1D; --card:#232323; --accent:#FF0072; --muted:#bfc3c6; --glass: rgba(255,255,255,0.06); --gold:#FFD54F; --gold-text:#2a2200; --disabled:#303030; }
+    :root{ --bg:var(--site-bg); --card:var(--site-surface); --accent:var(--site-accent); --muted:var(--site-muted); --glass: var(--site-glass); --gold:#FFD54F; --gold-text:#2a2200; --disabled:#303030; }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:var(--bg); color:#fff; padding:24px; display:flex; justify-content:center}
+    body{font-family:inherit; background:radial-gradient(circle at top, var(--site-bg-soft), var(--bg)); color:var(--site-text); padding:24px; display:flex; justify-content:center}
     .container{max-width:900px; width:100%}
     header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
     .brand{display:flex;gap:12px;align-items:center}
@@ -46,13 +48,13 @@
   <main class="container">
     <header>
       <div class="brand">
-        <div class="logo"><img src="img/Logo.png" alt="Logo"></div> <!-- path updated -->
+        <div class="logo"><img src="../img/Logo.png" alt="Logo"></div> <!-- path updated -->
         <div>
           <h1>Order — <span id="pkgName">Loading...</span></h1>
           <p class="lead">Hitung harga otomatis • Validasi deadline realistis • Buffer fee durasi panjang • WhatsApp redirect</p>
         </div>
       </div>
-      <div class="muted" style="font-size:17px; color:#FF0072; font-weight:bold;">Tidak ada nego atau harga temen!</div>
+      <div class="muted" style="font-size:17px; color:var(--accent); font-weight:bold;">Tidak ada nego atau harga temen!</div>
     </header>
 
     <a href="index.html" class="nav-btn">← Kembali</a>
@@ -106,7 +108,7 @@
     </section>
   </main>
 
-  <script src="assets/pricing.js"></script>
+  <script src="assets/js/pricing.js"></script>
   <script>
     const RAND_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     function randCode(len=6){ 
