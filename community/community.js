@@ -158,10 +158,25 @@ function isActiveToday(post, today) {
   return todayTime >= startTime && todayTime <= endTime;
 }
 
-function pickLatestActive(posts, today) {
-  return posts
-    .filter((post) => isActiveToday(post, today))
-    .reduce((latest, current) => {
+function isScheduled(post, today) {
+  if (!post.startDate) {
+    return false;
+  }
+  return today.getTime() < post.startDate.getTime();
+}
+
+function isExpired(post, today) {
+  if (!post.endDate) {
+    return false;
+  }
+  return today.getTime() > post.endDate.getTime();
+}
+
+function pickLatestNotice(posts, today) {
+  const visiblePosts = posts.filter((post) => !isScheduled(post, today));
+  const activePosts = visiblePosts.filter((post) => isActiveToday(post, today));
+  if (activePosts.length) {
+    return activePosts.reduce((latest, current) => {
       if (!latest) {
         return current;
       }
@@ -179,13 +194,30 @@ function pickLatestActive(posts, today) {
       }
       return latest;
     }, null);
+  }
+
+  const expiredPosts = visiblePosts.filter((post) => isExpired(post, today));
+  return expiredPosts.reduce((latest, current) => {
+    if (!latest) {
+      return current;
+    }
+    const latestEnd = latest.endDate ? latest.endDate.getTime() : -Infinity;
+    const currentEnd = current.endDate ? current.endDate.getTime() : -Infinity;
+    if (currentEnd > latestEnd) {
+      return current;
+    }
+    if (currentEnd === latestEnd && current.rowIndex > latest.rowIndex) {
+      return current;
+    }
+    return latest;
+  }, null);
 }
 
 function renderLatestNotice(posts, container) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const latest = pickLatestActive(posts, today);
+  const latest = pickLatestNotice(posts, today);
   container.innerHTML = "";
 
   if (!latest) {
@@ -236,11 +268,37 @@ function renderNoticeList(posts, container) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const sorted = [...posts].sort((a, b) => {
-    const aStart = a.startDate ? a.startDate.getTime() : -Infinity;
-    const bStart = b.startDate ? b.startDate.getTime() : -Infinity;
-    if (aStart !== bStart) {
-      return bStart - aStart;
+  const visiblePosts = posts.filter((post) => !isScheduled(post, today));
+  if (!visiblePosts.length) {
+    container.innerHTML = '<p class="notice-empty">Belum ada postingan.</p>';
+    return;
+  }
+  const sorted = visiblePosts.sort((a, b) => {
+    const aActive = isActiveToday(a, today);
+    const bActive = isActiveToday(b, today);
+    if (aActive !== bActive) {
+      return aActive ? -1 : 1;
+    }
+
+    if (aActive && bActive) {
+      const aStart = a.startDate ? a.startDate.getTime() : -Infinity;
+      const bStart = b.startDate ? b.startDate.getTime() : -Infinity;
+      if (aStart !== bStart) {
+        return bStart - aStart;
+      }
+      return b.rowIndex - a.rowIndex;
+    }
+
+    const aEnd = a.endDate ? a.endDate.getTime() : null;
+    const bEnd = b.endDate ? b.endDate.getTime() : null;
+    if (aEnd === null && bEnd !== null) {
+      return 1;
+    }
+    if (aEnd !== null && bEnd === null) {
+      return -1;
+    }
+    if (aEnd !== null && bEnd !== null && aEnd !== bEnd) {
+      return bEnd - aEnd;
     }
     return b.rowIndex - a.rowIndex;
   });
@@ -301,8 +359,7 @@ function buildStatusDot(post, today) {
   }
   const dot = document.createElement("span");
   dot.className = `notice-status-dot notice-status-dot--${status.key}`;
-  dot.title = status.tooltip;
-  dot.setAttribute("aria-label", status.tooltip);
+  dot.setAttribute("aria-hidden", "true");
   return dot;
 }
 
