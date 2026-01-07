@@ -109,6 +109,14 @@
   position: relative;
 }
 
+.notice-pin {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+
 .notice-item__header {
   display: flex;
   flex-direction: column;
