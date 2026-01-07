@@ -67,6 +67,8 @@ function parsePosts(csvText) {
       progressValue = "",
       startRaw = "",
       endRaw = "",
+      hideFlag = "",
+      pinFlag = "",
     ] = row;
 
     return {
@@ -78,6 +80,8 @@ function parsePosts(csvText) {
       progressValue: progressValue.trim(),
       startRaw: startRaw.trim(),
       endRaw: endRaw.trim(),
+      hideFlag: hideFlag.trim().toUpperCase(),
+      pinFlag: pinFlag.trim().toUpperCase(),
       startDate: parseDate(startRaw.trim()),
       endDate: parseDate(endRaw.trim()),
       rowIndex: index,
@@ -172,8 +176,39 @@ function isExpired(post, today) {
   return today.getTime() > post.endDate.getTime();
 }
 
+function isHidden(post) {
+  return post.hideFlag === "I";
+}
+
+function isPinned(post) {
+  return post.pinFlag === "I";
+}
+
 function pickLatestNotice(posts, today) {
-  const visiblePosts = posts.filter((post) => !isScheduled(post, today));
+  const visiblePosts = posts.filter(
+    (post) => !isHidden(post) && !isScheduled(post, today)
+  );
+  const pinnedPosts = visiblePosts.filter((post) => isPinned(post));
+  if (pinnedPosts.length) {
+    return pinnedPosts.reduce((latest, current) => {
+      if (!latest) {
+        return current;
+      }
+      const latestStart = latest.startDate
+        ? latest.startDate.getTime()
+        : -Infinity;
+      const currentStart = current.startDate
+        ? current.startDate.getTime()
+        : -Infinity;
+      if (currentStart > latestStart) {
+        return current;
+      }
+      if (currentStart === latestStart && current.rowIndex > latest.rowIndex) {
+        return current;
+      }
+      return latest;
+    }, null);
+  }
   const activePosts = visiblePosts.filter((post) => isActiveToday(post, today));
   if (activePosts.length) {
     return activePosts.reduce((latest, current) => {
@@ -268,16 +303,24 @@ function renderNoticeList(posts, container) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const visiblePosts = posts.filter((post) => !isScheduled(post, today));
+  const visiblePosts = posts.filter(
+    (post) => !isHidden(post) && !isScheduled(post, today)
+  );
   if (!visiblePosts.length) {
     container.innerHTML = '<p class="notice-empty">Belum ada postingan.</p>';
     return;
   }
   const sorted = visiblePosts.sort((a, b) => {
+    const aPinned = isPinned(a);
+    const bPinned = isPinned(b);
     const aActive = isActiveToday(a, today);
     const bActive = isActiveToday(b, today);
-    if (aActive !== bActive) {
-      return aActive ? -1 : 1;
+    const aExpired = isExpired(a, today);
+    const bExpired = isExpired(b, today);
+    const aGroup = getNoticeGroupOrder(aPinned, aActive, aExpired);
+    const bGroup = getNoticeGroupOrder(bPinned, bActive, bExpired);
+    if (aGroup !== bGroup) {
+      return aGroup - bGroup;
     }
 
     if (aActive && bActive) {
@@ -308,6 +351,14 @@ function renderNoticeList(posts, container) {
   sorted.forEach((post) => {
     const card = document.createElement("article");
     card.className = "notice-item";
+
+    if (isPinned(post)) {
+      const pin = document.createElement("span");
+      pin.className = "notice-pin";
+      pin.setAttribute("aria-hidden", "true");
+      pin.textContent = "📌";
+      card.appendChild(pin);
+    }
 
     const header = document.createElement("div");
     header.className = "notice-item__header";
@@ -350,6 +401,19 @@ function renderNoticeList(posts, container) {
 
     container.appendChild(card);
   });
+}
+
+function getNoticeGroupOrder(isPinnedPost, isActivePost, isExpiredPost) {
+  if (isPinnedPost && isActivePost) {
+    return 0;
+  }
+  if (isPinnedPost && isExpiredPost) {
+    return 1;
+  }
+  if (!isPinnedPost && isActivePost) {
+    return 2;
+  }
+  return 3;
 }
 
 function buildStatusDot(post, today) {
