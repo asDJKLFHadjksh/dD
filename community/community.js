@@ -197,18 +197,22 @@ function renderLatestNotice(posts, container) {
   container.appendChild(desc);
 
   if (latest.imageFlag === "I" && latest.imagePath) {
-    const image = document.createElement("img");
-    image.className = "notice-image";
-    image.src = latest.imagePath;
-    image.alt = latest.title;
-    container.appendChild(image);
+    const media = buildNoticeMedia(latest.imagePath, latest.title);
+    if (media) {
+      container.appendChild(media);
+    }
   }
 
   if (latest.progressFlag === "I") {
     const progressValue = parseProgressValue(latest.progressValue);
     if (progressValue !== null) {
-      container.appendChild(buildProgress(progressValue));
+      container.appendChild(buildProgress(progressValue, true));
     }
+  }
+
+  const meta = buildNoticeMeta(latest, today, { compact: true });
+  if (meta) {
+    container.appendChild(meta);
   }
 }
 
@@ -236,25 +240,31 @@ function renderNoticeList(posts, container) {
     const card = document.createElement("article");
     card.className = "notice-item";
 
-    const status = buildStatus(post, today);
-    card.appendChild(status);
+    const header = document.createElement("div");
+    header.className = "notice-item__header";
+
+    const meta = buildNoticeMeta(post, today);
+    if (meta) {
+      header.appendChild(meta);
+    }
 
     const title = document.createElement("h3");
     title.className = "notice-item__title";
     title.textContent = post.title;
-    card.appendChild(title);
+    header.appendChild(title);
 
     const desc = document.createElement("p");
     desc.className = "notice-item__desc";
     desc.textContent = post.description || "(Tanpa deskripsi)";
-    card.appendChild(desc);
+    header.appendChild(desc);
+
+    card.appendChild(header);
 
     if (post.imageFlag === "I" && post.imagePath) {
-      const image = document.createElement("img");
-      image.className = "notice-image";
-      image.src = post.imagePath;
-      image.alt = post.title;
-      card.appendChild(image);
+      const media = buildNoticeMedia(post.imagePath, post.title);
+      if (media) {
+        card.appendChild(media);
+      }
     }
 
     if (post.progressFlag === "I") {
@@ -264,50 +274,25 @@ function renderNoticeList(posts, container) {
       }
     }
 
-    const meta = document.createElement("div");
-    meta.className = "notice-item__meta";
-
-    if (post.startRaw) {
-      const start = document.createElement("span");
-      start.textContent = `Mulai: ${post.startRaw}`;
-      meta.appendChild(start);
-    }
-
-    if (post.endRaw) {
-      const end = document.createElement("span");
-      end.textContent = `Selesai: ${post.endRaw}`;
-      meta.appendChild(end);
-    }
-
-    if (meta.children.length) {
-      card.appendChild(meta);
+    const statusDot = buildStatusDot(post, today);
+    if (statusDot) {
+      card.appendChild(statusDot);
     }
 
     container.appendChild(card);
   });
 }
 
-function buildStatus(post, today) {
-  const status = document.createElement("span");
-  const isActive = isActiveToday(post, today);
-
-  if (isActive) {
-    status.className = "notice-status";
-    status.textContent = "Aktif";
-    return status;
+function buildStatusDot(post, today) {
+  const status = getStatusInfo(post, today);
+  if (!status) {
+    return null;
   }
-
-  status.className = "notice-status notice-status--inactive";
-
-  if (post.startDate && today.getTime() < post.startDate.getTime()) {
-    status.textContent = "Belum mulai";
-  } else if (post.endDate && today.getTime() > post.endDate.getTime()) {
-    status.textContent = "Arsip";
-  } else {
-    status.textContent = "Tidak aktif";
-  }
-
-  return status;
+  const dot = document.createElement("span");
+  dot.className = `notice-status-dot notice-status-dot--${status.key}`;
+  dot.title = status.tooltip;
+  dot.setAttribute("aria-label", status.tooltip);
+  return dot;
 }
 
 function parseProgressValue(value) {
@@ -321,9 +306,12 @@ function parseProgressValue(value) {
   return Math.min(100, Math.max(0, number));
 }
 
-function buildProgress(value) {
+function buildProgress(value, isCompact = false) {
   const wrapper = document.createElement("div");
   wrapper.className = "notice-progress";
+  if (isCompact) {
+    wrapper.classList.add("notice-progress--compact");
+  }
 
   const track = document.createElement("div");
   track.className = "notice-progress__track";
@@ -343,3 +331,115 @@ function buildProgress(value) {
 
   return wrapper;
 }
+
+function buildNoticeMeta(post, today, { compact = false } = {}) {
+  const meta = document.createElement("div");
+  meta.className = compact ? "notice-meta notice-meta--compact" : "notice-meta";
+
+  const status = getStatusInfo(post, today);
+  if (status && status.badge) {
+    const statusBadge = document.createElement("span");
+    statusBadge.className = "notice-meta__status";
+    statusBadge.textContent = status.badge;
+    meta.appendChild(statusBadge);
+  }
+
+  if (post.startRaw) {
+    const start = document.createElement("span");
+    start.textContent = `Mulai: ${post.startRaw}`;
+    meta.appendChild(start);
+  }
+
+  if (post.endRaw) {
+    const end = document.createElement("span");
+    end.textContent = `Selesai: ${post.endRaw}`;
+    meta.appendChild(end);
+  }
+
+  if (!meta.children.length) {
+    return null;
+  }
+  return meta;
+}
+
+function buildNoticeMedia(url, title) {
+  const normalizedUrl = normalizeDriveUrl(url);
+  if (!normalizedUrl) {
+    return null;
+  }
+  const wrapper = document.createElement("div");
+  wrapper.className = "notice-media";
+
+  const image = document.createElement("img");
+  image.className = "notice-image";
+  image.src = normalizedUrl;
+  image.alt = title;
+  image.loading = "lazy";
+  image.addEventListener("error", () => {
+    wrapper.style.display = "none";
+  });
+
+  wrapper.appendChild(image);
+  return wrapper;
+}
+
+function normalizeDriveUrl(url) {
+  if (!url) {
+    return "";
+  }
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const fileIdMatch = trimmed.match(
+    /drive\.google\.com\/file\/d\/([^/]+)\/(?:view|preview)/
+  );
+  if (fileIdMatch) {
+    return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+  }
+
+  const openIdMatch = trimmed.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if (openIdMatch) {
+    return `https://drive.google.com/uc?export=view&id=${openIdMatch[1]}`;
+  }
+
+  const ucMatch = trimmed.match(
+    /(drive|docs)\.google\.com\/uc\?(?:[^#]*&)?id=([^&]+)/
+  );
+  if (ucMatch) {
+    return `https://drive.google.com/uc?export=view&id=${ucMatch[2]}`;
+  }
+
+  return trimmed;
+}
+
+function getStatusInfo(post, today) {
+  const todayTime = today.getTime();
+  const startTime = post.startDate ? post.startDate.getTime() : -Infinity;
+  const endTime = post.endDate ? post.endDate.getTime() : Infinity;
+
+  if (todayTime < startTime) {
+    return {
+      key: "upcoming",
+      tooltip: "Belum mulai",
+      badge: "Belum mulai",
+    };
+  }
+
+  if (todayTime > endTime) {
+    return {
+      key: "ended",
+      tooltip: "Arsip / Sudah berakhir",
+      badge: "Arsip",
+    };
+  }
+
+  return {
+    key: "active",
+    tooltip: "Aktif / Sedang berlangsung",
+    badge: "",
+  };
+}
+
+// Catatan: File Drive harus disetel public (anyone with link) agar gambar tampil.
