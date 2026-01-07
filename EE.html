@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KuhyaKuya Studio</title>
+<meta name="description" content="KuhyaKuya Studio – Jasa editing video fleksibel. Harga transparan, order cepat, dan detail kebijakan jelas." />
+
+  <!-- ✅ favicon -->
+  <link rel="icon" type="image/png" href="img/favicon.png"> <!-- path updated -->
+  <link rel="apple-touch-icon" href="img/favicon.png"> <!-- path updated -->
+
+  <style>
+    :root{
+      --bg:#1D1D1D; --card:#232323; --accent:#FF0072; --muted:#bfc3c6; --glass: rgba(255,255,255,0.03);
+      --gold:#FFD54F; --detail:#555; --flip-duration:250ms; --disabled:#303030;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg);color:#fff;padding:32px;display:flex;justify-content:center;min-height:100vh}
+    .container{max-width:1100px;width:100%;padding-bottom:60px;margin:0 auto;position:relative}
+
+    #kodeInput::placeholder{color:rgba(255,255,255,0.65);}
+
+    .site-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;padding-bottom:40px;position:relative;padding-right:140px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    h1{font-size:18px}
+    p.lead{color:var(--muted);font-size:13px;margin-top:4px;min-height:16px;transition:opacity .5s ease}
+    .btn-cek-status{position:absolute;top:20px;right:20px;padding:6px 12px;background:transparent;color:#FF0072;border:2px solid #FF0072;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s ease;z-index:1000}
+    .btn-cek-status:hover{background:#FF0072;color:#fff}
+    .btn-cek-status:focus-visible{outline:2px solid rgba(255,0,114,0.6);outline-offset:2px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:16px}
+
+    /* ===== Portfolio ===== */
+    .portfolio-section h2{margin:40px 0 16px;font-size:18px}
+    .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+    .portfolio-item{
+      background:var(--card);
+      padding:12px;
+      border-radius:12px;
+      opacity:0;
+      transform:translateY(20px);
+      transition:opacity 0.4s ease,transform 0.4s ease;
+    }
+    .portfolio-item.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+    .portfolio-item.hide{
+      opacity:0;
+      transform:translateY(20px);
+      transition:opacity 0.4s ease,transform 0.4s ease;
+    }
+    .portfolio-item .video-wrapper{position:relative;aspect-ratio:16/9} /* responsive 16:9 */
+    .portfolio-item .video-wrapper iframe,
+    .portfolio-item .video-wrapper video{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;background:#000;border:none} /* full-size media */
+    .portfolio-item .flag{ /* payment status icon */
+      width:16px; /* fixed icon width */
+      height:16px; /* fixed icon height */
+      vertical-align:middle; /* align icon with text */
+      margin-right:6px; /* space between icon and text */
+      object-fit:contain; /* keep image ratio */
+    }
+    .portfolio-item .flag.free{filter:brightness(0) invert(1);} /* turn free icon white */
+    .portfolio-item .desc{color:var(--muted);margin-top:8px;font-size:14px} /* portfolio text */
+    .pkg-highlight{ /* package label badge */
+      display:inline-block; /* inline badge */
+      background:rgba(255,0,114,0.1); /* light accent background */
+      border:1px solid #FF0072; /* accent border */
+      color:#FF0072; /* accent text color */
+      font-weight:600; /* bold text */
+      font-size:0.9em; /* slightly smaller font */
+      padding:2px 6px; /* inner spacing */
+      border-radius:6px; /* rounded corners */
+      margin:0 2px; /* small horizontal gap */
+      vertical-align:middle; /* align with text */
+    } /* end badge style */
+    .portfolio-toggle{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer} /* click area for text+diamond */
+    .portfolio-toggle .toggle-text{color:#FF0072;text-decoration:underline} /* styled label text */
+    .portfolio-toggle .diamond{width:15px;height:15px;border:2px solid #FF0072;transform:rotate(45deg);border-radius:2px;background:transparent} /* diamond indicator */
+    .portfolio-toggle.active .diamond{background:#FF0072} /* fill when active */
+
+    .card{border-radius:12px;overflow:hidden;transition:height .3s ease;position:relative}
+    .card-face{background:var(--card);border-radius:12px;padding:18px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.05);
+      transform-origin:center center;transition:transform var(--flip-duration) ease, opacity var(--flip-duration) ease}
+    .card-face.hide{display:none}
+
+    .card-front h3{font-size:16px;margin-bottom:4px}
+    .price-box{margin:10px 0}
+    .old-price{font-size:12px;color:var(--muted);text-decoration:line-through;display:inline-block;margin-right:6px}
+    .disc-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;padding:2px 6px;border-radius:6px}
+    .price{font-weight:700;font-size:20px;margin-top:2px}
+    .meta{color:var(--muted);font-size:13px}
+    .list{margin:12px 0 16px;padding-left:18px;color:var(--muted);font-size:14px}
+    .badge{display:inline-block;background:var(--glass);padding:4px 10px;border-radius:999px;font-size:12px;color:var(--muted);margin-right:6px;margin-top:4px}
+
+    .cta{text-align:right;margin-top:16px}
+    .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:10px;font-weight:600;
+      cursor:pointer;text-decoration:none;display:inline-block;font-size:13px;border:none}
+    .btn.detail{background:var(--detail);color:#fff}
+    .btn[disabled]{background:var(--disabled)!important;color:#aaa;cursor:not-allowed;pointer-events:none}
+
+    .card-back h4{margin-bottom:10px;font-size:15px;color:var(--gold)}
+    .card-back ul{padding-left:18px;color:var(--muted)}
+    .back-btn{margin-top:12px;background:var(--detail);color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+
+    footer{position:fixed;bottom:0;left:0;width:100%;background:var(--bg);color:var(--muted);
+      font-size:13px;text-align:center;padding:8px 0;z-index:10}
+    footer .footer-link{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+
+    .modal{display:none;position:fixed;z-index:1100;left:0;top:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+    .modal.show{display:flex}
+    .modal-content{background:var(--card);margin:auto;padding:24px;border-radius:12px;width:100%;max-width:480px;position:relative;
+      box-shadow:0 12px 32px rgba(0,0,0,0.45)}
+    .modal-form{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .modal-form input{width:250px;padding:6px 10px;background:var(--card);color:#fff;border:1px solid var(--accent);border-radius:6px;outline:none}
+    .modal-form button,
+    #backupRequestBtn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600}
+    .modal-content h3{margin-bottom:12px;font-size:18px}
+    .modal-content p{margin-bottom:8px;color:var(--muted);font-size:14px}
+    .modal-content p strong{color:#fff}
+    .modal .close{position:absolute;top:14px;right:18px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1}
+    .modal-status{font-weight:700}
+    .progress-status{font-weight:700}
+    .modal-status.available{color:#4caf50}
+    .modal-status.unavailable{color:#f44336}
+    #popup-isi{margin-top:16px;font-size:14px}
+    #popup-isi p{margin-bottom:8px}
+    #popup-isi p:last-child{margin-bottom:0}
+    #backupRequestBtn{margin-top:16px;font-size:13px;display:block;text-align:center}
+    #backupRequestBtn[disabled],
+    #backupRequestBtn.disabled{background:var(--disabled)!important;color:#aaa;cursor:not-allowed;pointer-events:none}
+
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000;
+      opacity:0;pointer-events:none;transition:opacity .3s ease-out}
+    .modal-overlay.show{opacity:1;pointer-events:auto}
+    .modal-box{background:var(--card);width:100%;max-width:800px;max-height:90vh;overflow-y:auto;
+      border-radius:12px;padding:24px;color:#fff;transform:translateY(20px);transition:transform .3s ease-out;
+      scrollbar-width:thin}
+    .modal-overlay.show .modal-box{transform:translateY(0)}
+    .modal-close{background:var(--detail);color:#fff;border:none;padding:6px 10px;border-radius:8px;
+      cursor:pointer;margin-bottom:16px}
+    .modal-box h2,.modal-box h3{font-weight:700}
+    .modal-box h2{margin-bottom:12px}
+    .modal-box h3{margin-top:24px;margin-bottom:8px}
+    .modal-box ul{padding-left:20px;margin-bottom:16px}
+    .modal-box ul li{margin-bottom:8px}
+    .modal-box ul li:last-child{margin-bottom:0}
+    .modal-box::-webkit-scrollbar{width:6px}
+    .modal-box::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:4px}
+    .modal-box::-webkit-scrollbar-thumb{background:var(--detail);border-radius:4px}
+    .status-guide{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+    .status-item{display:flex;align-items:flex-start;gap:10px}
+    .status-item img{height:24px;margin-right:6px}
+
+    .rekom .card-face{border:2px solid var(--gold)!important;box-shadow:0 0 0 1px rgba(255,213,79,.3),0 6px 18px rgba(255,213,79,.25)}
+    .ribbon{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,var(--gold),#e6b800);
+      color:#2a2200;font-weight:700;padding:4px 8px;border-radius:999px;font-size:11px;z-index:2}
+
+    #popup-jadwal.modal{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);
+      display:flex;justify-content:center;align-items:center;
+      z-index:1200;
+    }
+    #popup-jadwal.modal.tersembunyi{display:none;}
+    #popup-jadwal .konten-modal{
+      background:#232323;
+      padding:28px 32px;
+      border-radius:16px;
+      color:#fff;
+      max-width:480px;
+      width:100%;
+      position:relative;
+      text-align:left;
+      box-shadow:0 18px 42px rgba(0,0,0,0.55);
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    #popup-jadwal .modal-heading{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding-right:24px;
+    }
+    #popup-jadwal .modal-heading h2{
+      font-size:22px;
+      margin:0;
+    }
+    #popup-jadwal #tutup-jadwal{
+      position:absolute;
+      top:18px;
+      right:22px;
+      background:rgba(255,255,255,0.08);
+      border:none;
+      color:#fff;
+      font-size:20px;
+      cursor:pointer;
+      width:36px;
+      height:36px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      transition:background .2s ease;
+    }
+    #popup-jadwal #tutup-jadwal:hover{
+      background:rgba(255,255,255,0.16);
+    }
+    #popup-jadwal .status-wrapper{
+      display:flex;
+      align-items:center;
+      font-size:22px;
+      font-weight:700;
+      min-height:28px;
+    }
+    #popup-jadwal .status-wrapper.status-open{color:#4ade80;}
+    #popup-jadwal .status-wrapper.status-closed{color:#f87171;}
+    #popup-jadwal .status-wrapper.status-unavailable{color:var(--muted);font-size:16px;font-weight:600;}
+    #popup-jadwal .jadwal-section h3{
+      margin-bottom:4px;
+    }
+    #popup-jadwal .jadwal-section{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    #popup-jadwal .jadwal-list{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    #popup-jadwal .jadwal-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      font-size:17px;
+      line-height:1.6;
+      padding:10px 16px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.03);
+      transition:background .2s ease,transform .2s ease;
+    }
+   #popup-jadwal .jadwal-item.hari-ini {
+  background: rgba(255, 0, 114, 0.18);       /* latar highlight */
+  border: 1px solid rgba(255, 0, 114, 0.45);  /* garis pinggir */
+  box-shadow: 0 8px 22px rgba(255, 0, 114, 0.25); /* efek glow */
+}
+    #popup-jadwal .jadwal-item.hari-ini .jadwal-hari{color:#fff;}
+    #popup-jadwal .jadwal-item.hari-ini .jadwal-jam{color:#e0f2fe;}
+    #popup-jadwal .jadwal-hari{font-weight:600;}
+    #popup-jadwal .jadwal-jam{
+      font-weight:600;
+      color:var(--muted);
+      margin-left:auto;
+      text-align:right;
+      min-width:120px;
+    }
+    #popup-jadwal .modal-footer{
+      margin-top:auto;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      justify-content:flex-end;
+    }
+    #popup-jadwal #jam-realtime{
+      font-size:14px;
+      font-weight:600;
+      color:var(--muted);
+      letter-spacing:0.4px;
+    }
+    @media (max-width:520px){
+      #popup-jadwal .konten-modal{padding:24px 20px;}
+      #popup-jadwal .status-wrapper{font-size:18px;}
+      #popup-jadwal .jadwal-item{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:6px;
+      }
+      #popup-jadwal .jadwal-jam{
+        min-width:auto;
+        text-align:left;
+      }
+      #popup-jadwal .modal-footer{
+        justify-content:center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="site-header">
+      <button id="openOrderBtn" type="button" class="btn-cek-status" title="Pantau ketersediaan file dan progres order secara real-time.">Order Tracker</button>
+      <div class="brand">
+        <div class="logo"><img src="img/Logo.png" alt="Logo"></div> <!-- path updated -->
+        <div>
+          <h1>KuhyaKuya Studio</h1>
+          <p class="lead" id="rotating-text">Hasil bisa di lihat di portofolio</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid" id="packages"></section>
+
+    <section class="portfolio-section">
+      <h2>Portofolio</h2>
+        <label id="pfToggle" class="portfolio-toggle" aria-label="Show Portofolio"> <!-- combined text+diamond -->
+          <span class="toggle-text">Tampilkan</span> <!-- underlined label text -->
+          <span class="diamond"></span> <!-- diamond indicator -->
+        </label>
+      <div class="portfolio-grid" id="portfolio" style="display:none"></div> <!-- hidden by default -->
+    </section>
+
+    <footer><button id="policyBtn" class="footer-link">Kebijakan & Panduan</button></footer>
+  </main>
+
+  <div id="orderModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="orderModalTitle">
+    <div class="modal-content">
+      <button class="close" type="button" id="orderModalClose" aria-label="Tutup popup">&times;</button>
+      <h3 id="orderModalTitle">Order Tracker</h3>
+      <div class="modal-form">
+        <input id="kodeInput" type="text" placeholder="Input Code Order" autocomplete="off">
+        <button id="searchBtn" type="button">Cek Projek Status</button>
+      </div>
+      <div id="popup-isi">
+        <p>Masukkan Code Order untuk menampilkan detail.</p>
+      </div>
+      <button id="backupRequestBtn" type="button" style="display:none">Minta File</button>
+    </div>
+  </div>
+
+  <div id="policyModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-box">
+      <button id="modalClose" class="modal-close">Tutup</button>
+      <h2>Kebijakan Global</h2>
+      <h3>Revisi</h3>
+      <ul>
+        <li>Revisi minor (typo, glitch, potong scene kecil) gratis x kali sesuai paket.</li>
+        <li>Revisi besar (ubah konsep, ganti footage utama, tambah durasi) dihitung biaya tambahan.</li>
+        <li>Permintaan revisi di luar jangka waktu yang disepakati akan dianggap proyek baru.</li>
+      </ul>
+      <h3>Hak untuk Portofolio</h3>
+      <ul>
+        <li>Editor berhak menampilkan hasil akhir di portofolio sebagai contoh karya.</li>
+        <li>Jika klien ingin hasil tidak dipublikasikan, wajib menyampaikan secara tertulis (chat/email) sebelum proyek selesai.</li>
+        <li>Tanpa permintaan tertulis, editor berhak menampilkan cuplikan atau highlight.</li>
+      </ul>
+      <h3>Perjanjian DP (Down Payment)</h3>
+      <ul>
+        <li>DP minimal 30–50% dari total biaya sebagai tanda jadi dan mem-booking jadwal produksi.</li>
+        <li>Proses editing dimulai setelah DP diterima.</li>
+        <li>DP tidak dapat dikembalikan bila klien membatalkan proyek sepihak.</li>
+      </ul>
+      <h3>Pembayaran Tidak Terselesaikan / Klien Kabur</h3>
+      <ul>
+        <li>Jika sisa pembayaran tidak dilunasi dalam waktu ___ hari setelah hasil final diserahkan,
+          editor berhak menahan file final tanpa watermark dan/atau tidak memberikan hak penggunaan.</li>
+        <li>Jika setelah tenggat tetap tidak ada pelunasan, editor berhak mempublikasikan kembali hasil karya sebagai portofolio dan menagih sesuai hukum yang berlaku.</li>
+      </ul>
+      <h3>Backup</h3>
+      <ul>
+        <li>Editor menyimpan backup project dan file mentah (project file, footage) maksimal ___ bulan setelah proyek selesai.</li>
+        <li>Setelah masa itu, editor tidak menjamin ketersediaan file.</li>
+        <li>Permintaan backup setelah periode tersebut bisa dikenakan biaya tambahan.</li>
+      </ul>
+      <h3>Raw File</h3>
+      <ul>
+        <li>File mentah proyek (contoh: .prproj, .aep, footage asli) tidak termasuk dalam paket standar.</li>
+        <li>Jika klien menginginkan file mentah, akan dikenakan biaya tambahan sesuai ukuran dan kompleksitas.</li>
+        <li>File mentah hanya diberikan setelah pembayaran penuh diterima.</li>
+      </ul>
+
+      <h2>Panduan Simbol Status Proyek</h2>
+      <div class="status-guide">
+        <div class="status-item">
+          <img src="img/free.png" alt="free icon">
+          <div><strong>Free</strong><br>Proyek gratis: bisa berupa paket Gabut, promosi internal, atau proyek tak berbayar.</div>
+        </div>
+        <div class="status-item">
+          <img src="img/paid.png" alt="paid icon">
+          <div><strong>Paid</strong><br>Proyek berbayar yang sudah <strong>lunas</strong>, seluruh pembayaran telah diterima.</div>
+        </div>
+        <div class="status-item">
+          <img src="img/unpaid.png" alt="unpaid icon">
+          <div><strong>Unpaid</strong><br>Pesanan yang <strong>belum dibayar</strong> atau kasus klien yang “kabur”. Video aman sebagai contoh karya, namun tidak boleh digunakan komersial sampai pembayaran diselesaikan.</div>
+        </div>
+      </div>
+  </div>
+</div>
+
+  <div id="popup-jadwal" class="modal tersembunyi">
+    <div class="konten-modal">
+      <button id="tutup-jadwal" aria-label="Tutup jadwal">×</button>
+      <div class="modal-heading">
+        <h2>Jadwal Kerja</h2>
+        <div id="status-jadwal" class="status-wrapper" aria-live="polite"></div>
+      </div>
+      <div class="jadwal-section">
+        <h3>Jadwal Lengkap</h3>
+        <ul id="jadwal-lengkap" class="jadwal-list"></ul>
+      </div>
+      <footer class="modal-footer">
+        <p id="jam-realtime" aria-live="polite"></p>
+      </footer>
+    </div>
+  </div>
+
+  <script src="assets/schedule.js"></script>
+  <script src="assets/pricing.js"></script>
+  <script src="assets/portfolio.js"></script>
+  <script>
+    const texts=[
+      "Harga transparan, kerjaan adil. Satu klik untuk hasil terbaik bagi client dan freelancer.",
+      "Jam kerja: Kamis–Selasa 19:00–22:00 • Sabtu–Minggu 09:00–22:00"
+    ];
+    let idx=0; const el=document.getElementById('rotating-text');
+    setInterval(()=>{ idx=(idx+1)%texts.length; el.style.opacity=0;
+      setTimeout(()=>{ el.textContent=texts[idx]; el.style.opacity=1; },500);
+    },5000);
+
+    const FLIP_DURATION=250;
+
+    const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRZiGRgDxVjlJupwCAb29TPzNlksU5kISHLkmfpqbdwO_NQ__PEOk8FxuHe_UwzxWe5pcnfTJ1MFX3b/pub?gid=0&single=true&output=csv";
+    let orderRowsCache=null;
+    let orderColumns=null;
+
+    const defaultColumnIndexes={
+      orderCode:0,
+      projectCode:1,
+      orderDate:2,
+      finishDate:3,
+      expireBackup:4,
+      title:5,
+      statusProgress:7
+    };
+
+    const statusColorMap={
+      'waiting asset':'#ff9800',
+      'preparing asset':'#ffc107',
+      'rendering':'#2196f3',
+      'revision':'#9c27b0',
+      'payment':'#4caf50',
+      'approved':'#2e7d32',
+      'none':'#9e9e9e',
+      'kosong':'#9e9e9e',
+      '':'#9e9e9e'
+    };
+
+    const orderModal=document.getElementById('orderModal');
+    const orderModalContent=document.getElementById('popup-isi');
+    const orderModalClose=document.getElementById('orderModalClose');
+    const kodeInput=document.getElementById('kodeInput');
+    const searchBtn=document.getElementById('searchBtn');
+    const openOrderBtn=document.getElementById('openOrderBtn');
+    const backupRequestBtn=document.getElementById('backupRequestBtn');
+    const defaultOrderMessage='<p>Masukkan Code Order untuk menampilkan detail.</p>';
+
+    let lastOrderData=null;
+    let priceConfigCache=null;
+
+    function hideBackupRequestButton(){
+      if(backupRequestBtn){
+        backupRequestBtn.style.display='none';
+        backupRequestBtn.disabled=true;
+        backupRequestBtn.classList.remove('disabled');
+      }
+      lastOrderData=null;
+    }
+
+    function updateBackupRequestButton(statusProgres,statusFile){
+      if(!backupRequestBtn) return;
+      const progressValue=String(statusProgres||'').trim();
+      const fileValue=String(statusFile||'').trim();
+      const canRequestBackup=progressValue==='Approved'&&fileValue==='File Tersedia';
+      backupRequestBtn.style.display='block';
+      backupRequestBtn.disabled=!canRequestBackup;
+      backupRequestBtn.classList.toggle('disabled',!canRequestBackup);
+    }
+
+    async function ensurePriceConfig(){
+      if(priceConfigCache) return priceConfigCache;
+      try{
+        const data=await Pricing.loadConfig(".");
+        priceConfigCache=data.prices||{};
+      }catch(err){
+        console.error('Gagal memuat konfigurasi WhatsApp:',err);
+        priceConfigCache={};
+      }
+      return priceConfigCache;
+    }
+
+    async function loadOrderRows(){
+      if(orderRowsCache){
+        if(!orderColumns) orderColumns=mapColumns(orderRowsCache[0]||[]);
+        return orderRowsCache;
+      }
+      const response=await fetch(CSV_URL);
+      if(!response.ok) throw new Error(`Gagal memuat CSV: ${response.status}`);
+      const text=(await response.text()).trim();
+      orderRowsCache=parseCSV(text);
+      orderColumns=mapColumns(orderRowsCache[0]||[]);
+      return orderRowsCache;
+    }
+
+    function parseCSV(text){
+      const rows=[];
+      let current=[];
+      let value='';
+      let insideQuotes=false;
+      for(let i=0;i<text.length;i++){
+        const char=text[i];
+        if(char==='"'){
+          if(insideQuotes && text[i+1]==='"'){ value+='"'; i++; }
+          else{ insideQuotes=!insideQuotes; }
+        }else if(char===',' && !insideQuotes){
+          current.push(value);
+          value='';
+        }else if((char==='\n' || char==='\r') && !insideQuotes){
+          if(char==='\r' && text[i+1]==='\n') i++;
+          current.push(value);
+          rows.push(current);
+          current=[];
+          value='';
+        }else{
+          value+=char;
+        }
+      }
+      if(value!=='' || current.length){
+        current.push(value);
+        rows.push(current);
+      }
+      return rows
+        .filter(row=>row.length&&row.some(cell=>cell.trim()!==''))
+        .map(row=>row.map(cell=>cell.trim()));
+    }
+
+    function mapColumns(headerRow){
+      if(!Array.isArray(headerRow)) return null;
+      const normalized=headerRow.map(cell=>String(cell||'').trim().toLowerCase());
+      const findIndex=name=>normalized.indexOf(name);
+      return {
+        orderCode:findIndex('code order'),
+        projectCode:findIndex('code projek'),
+        orderDate:findIndex('tanggal order'),
+        finishDate:findIndex('tanggal selesai'),
+        expireBackup:findIndex('expire backup'),
+        title:findIndex('judul'),
+        status:(()=>{
+          const statusFileIndex=findIndex('status file');
+          if(statusFileIndex!==-1) return statusFileIndex;
+          return findIndex('status');
+        })(),
+        statusProgress:findIndex('status progres')
+      };
+    }
+
+    function getColumnIndex(key){
+      const mapped=orderColumns?.[key];
+      if(typeof mapped==='number' && mapped>=0) return mapped;
+      if(key==='status') return -1;
+      return defaultColumnIndexes[key]??-1;
+    }
+
+    function getCellValue(row,key){
+      const idx=getColumnIndex(key);
+      if(idx<0 || idx>=row.length) return '';
+      return String(row[idx]??'').trim();
+    }
+
+    function getProgressColor(status){
+      const value=String(status||'').trim();
+      if(!value) return statusColorMap.none;
+      const lower=value.toLowerCase();
+      if(lower.startsWith('ongoing')) return '#fbc02d';
+      if(statusColorMap[lower]) return statusColorMap[lower];
+      if(lower.includes('none')||lower.includes('kosong')) return statusColorMap.none;
+      return statusColorMap.none;
+    }
+
+    function openOrderModal(){
+      if(!orderModal) return;
+      orderModal.classList.add('show');
+      orderModal.setAttribute('aria-hidden','false');
+      if(kodeInput) kodeInput.focus();
+    }
+
+    function tutupPopup(){
+      if(!orderModal) return;
+      orderModal.classList.remove('show');
+      orderModal.setAttribute('aria-hidden','true');
+      if(openOrderBtn) openOrderBtn.focus();
+    }
+
+    async function cariData(){
+      const kodeDicari=(kodeInput?.value||'').trim();
+      hideBackupRequestButton();
+      if(!kodeDicari){ alert('Masukkan Code Order dulu'); return; }
+      const kodeDicariLower=kodeDicari.toLowerCase();
+      if(orderModalContent){
+        orderModalContent.innerHTML='<p>Sedang mencari data...</p>';
+      }
+      openOrderModal();
+      try{
+        const rows=await loadOrderRows();
+        const dataRow=rows.slice(1).find(row=>getCellValue(row,'orderCode').toLowerCase()===kodeDicariLower);
+        if(orderModalContent){
+          if(dataRow){
+            const rowData={
+              judul:getCellValue(dataRow,'title')||'-',
+              statusProgres:getCellValue(dataRow,'statusProgress')||'',
+              tanggalOrder:getCellValue(dataRow,'orderDate')||'-',
+              tanggalSelesai:getCellValue(dataRow,'finishDate')||'-',
+              expireBackup:getCellValue(dataRow,'expireBackup')||'-',
+              statusFile:getCellValue(dataRow,'status')||'',
+              codeProjek:getCellValue(dataRow,'projectCode')||'-',
+              codeOrder:getCellValue(dataRow,'orderCode')||'-'
+            };
+
+            const progressColor=getProgressColor(rowData.statusProgres);
+            const progressValue=rowData.statusProgres||'None';
+            const progressMarkup=`<p><strong>Status Progres:</strong> <span class="progress-status" style="color:${progressColor};">${escapeHtml(progressValue)}</span></p>`;
+
+            const statusFileRaw=rowData.statusFile||'';
+            const statusFileNormalized=statusFileRaw.trim().toLowerCase();
+            const statusFileDisplay=statusFileRaw||'None';
+            let fileStatusStyle='font-weight:bold';
+            if(statusFileNormalized==='file tersedia') fileStatusStyle='color:#4CAF50;font-weight:bold';
+            else if(statusFileNormalized==='file tidak tersedia') fileStatusStyle='color:#F44336;font-weight:bold';
+
+            let html='';
+            html+=`<p><strong>Judul:</strong> ${escapeHtml(rowData.judul)}</p>`;
+            html+=progressMarkup;
+            html+=`<p><strong>Tanggal Order:</strong> ${escapeHtml(rowData.tanggalOrder)}</p>`;
+            html+=`<p><strong>Tanggal Selesai:</strong> ${escapeHtml(rowData.tanggalSelesai)}</p>`;
+            html+=`<p><strong>Expire Backup:</strong> ${escapeHtml(rowData.expireBackup)}</p>`;
+            html+=`<p><strong>Status File:</strong> <span class="modal-status" style="${fileStatusStyle}">${escapeHtml(statusFileDisplay)}</span></p>`;
+            html+=`<p><strong>Code Projek:</strong> ${escapeHtml(rowData.codeProjek)}</p>`;
+            html+=`<p><strong>Code Order:</strong> ${escapeHtml(rowData.codeOrder)}</p>`;
+
+            orderModalContent.innerHTML=html;
+            lastOrderData=rowData;
+            updateBackupRequestButton(rowData.statusProgres,rowData.statusFile);
+          }else{
+            orderModalContent.innerHTML='<p>Code Order tidak ditemukan silahkan konfirmasi ke Freelancer.</p>';
+            hideBackupRequestButton();
+          }
+        }
+      }catch(error){
+        console.error('Error fetching order data:',error);
+        if(orderModalContent){
+          orderModalContent.innerHTML='<p>Terjadi kesalahan saat memuat data. Silakan coba lagi.</p>';
+        }
+        hideBackupRequestButton();
+      }
+    }
+
+    async function handleBackupRequestClick(){
+      if(!backupRequestBtn || backupRequestBtn.disabled) return;
+      if(!lastOrderData) return;
+      const config=await ensurePriceConfig();
+      const rawNumber=String(config?.whatsapp||'').trim();
+      const templateRaw=String(config?.backup_request_message||'').trim();
+      if(!rawNumber || !templateRaw){
+        alert('Konfigurasi WhatsApp belum tersedia.');
+        return;
+      }
+      const sanitizedNumber=rawNumber.replace(/[^\d]/g,'');
+      if(!sanitizedNumber){
+        alert('Nomor WhatsApp tidak valid.');
+        return;
+      }
+      const judul=lastOrderData.judul||'-';
+      const codeProjek=lastOrderData.codeProjek||'-';
+      const codeOrder=lastOrderData.codeOrder||'-';
+      let messageTemplate=templateRaw.replace(/%0A/gi,'\n');
+      let message=messageTemplate
+        .replace(/{{\s*judul\s*}}/gi,judul)
+        .replace(/{{\s*code_projek\s*}}/gi,codeProjek)
+        .replace(/{{\s*code_order\s*}}/gi,codeOrder);
+      const encodedMessage=encodeURIComponent(message);
+      const waUrl=`https://wa.me/${sanitizedNumber}?text=${encodedMessage}`;
+      window.open(waUrl,'_blank','noopener');
+    }
+
+    if(openOrderBtn) openOrderBtn.addEventListener('click',()=>{
+      if(orderModalContent) orderModalContent.innerHTML=defaultOrderMessage;
+      if(kodeInput){ kodeInput.value=''; }
+      hideBackupRequestButton();
+      openOrderModal();
+    });
+    if(searchBtn) searchBtn.addEventListener('click',cariData);
+    if(kodeInput) kodeInput.addEventListener('keyup',e=>{ if(e.key==='Enter') cariData(); });
+    if(orderModalClose) orderModalClose.addEventListener('click',tutupPopup);
+    if(orderModal) orderModal.addEventListener('click',e=>{ if(e.target===orderModal) tutupPopup(); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&orderModal?.classList.contains('show')) tutupPopup(); });
+    if(backupRequestBtn) backupRequestBtn.addEventListener('click',handleBackupRequestClick);
+
+    async function loadPackages(){
+      try{
+        const {prices,promo}=await Pricing.loadConfig(".");
+        if(prices) priceConfigCache=prices;
+        renderPackages(prices.packages,promo);
+      }
+      catch(e){ console.error("Load config error:",e); }
+    }
+
+    function renderPackages(packages,promo){
+      const container=document.getElementById('packages');
+      container.innerHTML='';
+      packages.forEach(pkg=>{
+        const {normal,percent,final}=Pricing.getFinalPrice(pkg,promo);
+        const isRekom=checkRekom(promo,pkg.id);
+        const wrapper=document.createElement('div');
+        wrapper.className='card-wrapper';
+        wrapper.innerHTML=`
+          <div class="card${isRekom?' rekom':''}">
+            <div class="card-face card-front">
+              ${isRekom?'<div class="ribbon">Rekomendasi</div>':''}
+              <h3>${escapeHtml(pkg.name)}</h3>
+              <div class="meta">Revisi: ${pkg.revisions} • Durasi: ${pkg.durationText} • Waktu: ${pkg.leadTime}</div>
+              <div class="price-box">
+                ${percent>0?`<span class="old-price">IDR ${numberWithSeparators(normal)}</span><span class="disc-badge">-${percent}%</span>`:''}
+                <div class="price">IDR ${numberWithSeparators(final)}</div>
+              </div>
+              <ul class="list">${(pkg.features||[]).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul>
+              <div>${(pkg.tags||[]).map(t=>`<span class="badge">${escapeHtml(t)}</span>`).join('')}</div>
+              <div class="cta">
+                ${pkg.disabled
+                  ? `<a class="btn" disabled>KOUTA HABIS</a>`
+                  : `<a class="btn" href="./order.html?id=${pkg.id}">Buat Pesanan</a>`}
+                <button class="btn detail flip-btn" type="button">Detail</button>
+              </div>
+            </div>
+            <div class="card-face card-back hide">
+              <h4>Kebijakan ${escapeHtml(pkg.name)}</h4>
+              <ul>${(pkg.policy||["Tidak ada kebijakan tambahan"]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+              <button class="back-btn">← Kembali</button>
+            </div>
+          </div>`;
+        const front=wrapper.querySelector('.card-front');
+        const back=wrapper.querySelector('.card-back');
+        function flip(fromEl,toEl){
+          fromEl.style.transform='scaleX(1)';toEl.style.transform='scaleX(0)';
+          fromEl.style.opacity=1;toEl.style.opacity=0;
+          fromEl.style.transition=`transform ${FLIP_DURATION}ms ease,opacity ${FLIP_DURATION}ms ease`;
+          toEl.style.transition=`transform ${FLIP_DURATION}ms ease,opacity ${FLIP_DURATION}ms ease`;
+          fromEl.style.transform='scaleX(0)';fromEl.style.opacity=0;
+          setTimeout(()=>{
+            fromEl.classList.add('hide');toEl.classList.remove('hide');
+            toEl.style.transform='scaleX(0)';toEl.style.opacity=0;
+            requestAnimationFrame(()=>{toEl.style.transform='scaleX(1)';toEl.style.opacity=1;});
+          },FLIP_DURATION);
+        }
+        wrapper.querySelector('.flip-btn').addEventListener('click',()=>flip(front,back));
+        wrapper.querySelector('.back-btn').addEventListener('click',()=>flip(back,front));
+        container.appendChild(wrapper);
+      });
+    }
+
+    function checkRekom(promo,id){
+      if(!promo||!promo.recommended) return false;
+      if(Array.isArray(promo.recommended)) return promo.recommended.map(String).includes(String(id));
+      return String(promo.recommended)===String(id);
+    }
+    function numberWithSeparators(x){return x?.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')||'0'}
+    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]))}
+    loadPackages();
+    Portfolio.loadAndRender();
+      const pfToggle=document.getElementById('pfToggle'); // get toggle label
+      const pfGrid=document.getElementById('portfolio'); // get portfolio list
+      pfToggle.addEventListener('click',()=>{ // attach click handler
+        const hidden=pfGrid.style.display==='none'; // determine state
+        if(hidden){
+          pfGrid.style.display='';
+          pfToggle.classList.toggle('active',true); // toggle diamond fill
+          Portfolio.loadAndRender();
+        }else{
+          pfToggle.classList.toggle('active',false); // toggle diamond fill
+          Portfolio.hide();
+        }
+      }); // end handler
+
+    const policyBtn=document.getElementById('policyBtn');
+    const policyModal=document.getElementById('policyModal');
+    const modalClose=document.getElementById('modalClose');
+    function closeModal(){ policyModal.classList.remove('show'); document.body.style.overflow=''; }
+    policyBtn.addEventListener('click',()=>{ policyModal.classList.add('show'); document.body.style.overflow='hidden'; });
+    modalClose.addEventListener('click',closeModal);
+    policyModal.addEventListener('click',e=>{ if(e.target===policyModal) closeModal(); });
+  </script>
+</body>
+</html>
