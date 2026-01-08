@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" type="image/png" href="../img/favicon.png" />
+  <link rel="shortcut icon" href="../img/favicon.png" />
+  <link rel="apple-touch-icon" href="../img/favicon.png" />
+
+  <title>Team Learning Repository (TLR)</title>
+
+  <link rel="stylesheet" href="../assets/css/theme.css" />
+  <link rel="stylesheet" href="../assets/css/theme-custom.css" />
+  <link rel="stylesheet" href="tlr.css" />
+</head>
+<body>
+  <main class="tlr-wrapper">
+    <header class="tlr-header">
+      <p class="tlr-kicker">Kuhyakuya Studio</p>
+      <h1>Team Learning Repository (TLR)</h1>
+      <p class="tlr-subtitle">
+        Pusat dokumentasi dan pembelajaran tim berisi catatan, panduan, dan progres pembelajaran.
+        Sistem statis, ringan, terstruktur, mudah dikembangkan tanpa backend.
+      </p>
+    </header>
+
+    <section class="tlr-controls" aria-label="Pencarian dan filter">
+      <label class="tlr-field">
+        <span>Cari Judul atau Materi</span>
+        <input
+          id="tlrSearch"
+          class="tlr-input"
+          type="search"
+          placeholder="Ketik untuk mencari..."
+          autocomplete="off"
+        />
+      </label>
+
+      <label class="tlr-field">
+        <span>Filter Kategori</span>
+        <select id="tlrCategory" class="tlr-select">
+          <option value="">Semua Kategori</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="tlr-list" id="tlrList" aria-live="polite">
+      <p class="tlr-empty">Memuat data TLR...</p>
+    </section>
+  </main>
+
+  <script src="tlr.js"></script>
+</body>
+</html>
