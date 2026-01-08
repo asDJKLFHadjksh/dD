@@ -4,11 +4,25 @@ const CSV_URL =
 const latestContainer = document.getElementById("noticeLatest");
 const listContainer = document.getElementById("noticeList");
 const MEDIA_BASE = "community/media/";
+const MEDIA_BASE_SUBPAGE = "../community/media/";
 const lightboxElements = {
   overlay: document.querySelector(".notice-lightbox"),
   image: document.querySelector(".notice-lightbox__image"),
   closeButton: document.querySelector(".notice-lightbox__close"),
 };
+const lightboxState = {
+  scale: 1,
+  translateX: 0,
+  translateY: 0,
+  isPanning: false,
+  startX: 0,
+  startY: 0,
+  startTranslateX: 0,
+  startTranslateY: 0,
+};
+const LIGHTBOX_SCALE_MIN = 1;
+const LIGHTBOX_SCALE_MAX = 4.5;
+const LIGHTBOX_SCALE_STEP = 0.25;
 
 if (latestContainer || listContainer) {
   loadNotices();
@@ -402,7 +416,7 @@ function buildNoticeMeta(post, { compact = false } = {}) {
 }
 
 function buildNoticeMedia(imageName, title) {
-  const resolvedSrc = `${MEDIA_BASE}${imageName}`;
+  const resolvedSrc = resolveMediaSrc(imageName);
   const wrapper = document.createElement("div");
   wrapper.className = "notice-media";
 
@@ -610,6 +624,63 @@ function setupLightbox() {
     openLightbox(target);
   });
 
+  overlay.addEventListener(
+    "wheel",
+    (event) => {
+      if (!overlay.classList.contains("is-open")) {
+        return;
+      }
+      event.preventDefault();
+      handleLightboxZoom(event);
+    },
+    { passive: false }
+  );
+
+  image.addEventListener("pointerdown", (event) => {
+    if (!overlay.classList.contains("is-open")) {
+      return;
+    }
+    if (lightboxState.scale <= 1) {
+      return;
+    }
+    lightboxState.isPanning = true;
+    lightboxState.startX = event.clientX;
+    lightboxState.startY = event.clientY;
+    lightboxState.startTranslateX = lightboxState.translateX;
+    lightboxState.startTranslateY = lightboxState.translateY;
+    image.setPointerCapture(event.pointerId);
+    setLightboxCursor();
+  });
+
+  image.addEventListener("pointermove", (event) => {
+    if (!lightboxState.isPanning) {
+      return;
+    }
+    const deltaX = event.clientX - lightboxState.startX;
+    const deltaY = event.clientY - lightboxState.startY;
+    lightboxState.translateX = lightboxState.startTranslateX + deltaX;
+    lightboxState.translateY = lightboxState.startTranslateY + deltaY;
+    applyLightboxTransform();
+  });
+
+  image.addEventListener("pointerup", (event) => {
+    if (!lightboxState.isPanning) {
+      return;
+    }
+    lightboxState.isPanning = false;
+    image.releasePointerCapture(event.pointerId);
+    setLightboxCursor();
+  });
+
+  image.addEventListener("pointercancel", (event) => {
+    if (!lightboxState.isPanning) {
+      return;
+    }
+    lightboxState.isPanning = false;
+    image.releasePointerCapture(event.pointerId);
+    setLightboxCursor();
+  });
+
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
       closeLightbox();
@@ -639,6 +710,7 @@ function openLightbox(targetImage) {
   }
   image.src = fullSrc;
   image.alt = targetImage.alt || "Preview gambar";
+  resetLightboxTransform();
   overlay.classList.add("is-open");
   overlay.setAttribute("aria-hidden", "false");
   document.body.classList.add("notice-lightbox-open");
@@ -653,6 +725,86 @@ function closeLightbox() {
   overlay.setAttribute("aria-hidden", "true");
   image.removeAttribute("src");
   document.body.classList.remove("notice-lightbox-open");
+  resetLightboxTransform();
+}
+
+function resolveMediaSrc(imageName) {
+  if (!imageName) {
+    return "";
+  }
+  const base = window.location.pathname.includes("/community/")
+    ? MEDIA_BASE_SUBPAGE
+    : MEDIA_BASE;
+  return new URL(`${base}${imageName}`, window.location.href).toString();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function applyLightboxTransform() {
+  const { image } = lightboxElements;
+  if (!image) {
+    return;
+  }
+  image.style.transform = `translate(${lightboxState.translateX}px, ${lightboxState.translateY}px) scale(${lightboxState.scale})`;
+  image.style.transition = lightboxState.isPanning
+    ? "none"
+    : "transform 0.2s ease";
+  setLightboxCursor();
+}
+
+function setLightboxCursor() {
+  const { image } = lightboxElements;
+  if (!image) {
+    return;
+  }
+  if (lightboxState.scale > 1) {
+    image.style.cursor = lightboxState.isPanning ? "grabbing" : "grab";
+  } else {
+    image.style.cursor = "zoom-in";
+  }
+}
+
+function resetLightboxTransform() {
+  lightboxState.scale = 1;
+  lightboxState.translateX = 0;
+  lightboxState.translateY = 0;
+  lightboxState.isPanning = false;
+  applyLightboxTransform();
+}
+
+function handleLightboxZoom(event) {
+  const { image } = lightboxElements;
+  if (!image) {
+    return;
+  }
+  const direction = event.deltaY > 0 ? -1 : 1;
+  const nextScale = clamp(
+    lightboxState.scale + direction * LIGHTBOX_SCALE_STEP,
+    LIGHTBOX_SCALE_MIN,
+    LIGHTBOX_SCALE_MAX
+  );
+  if (nextScale === lightboxState.scale) {
+    return;
+  }
+
+  const rect = image.getBoundingClientRect();
+  const offsetX = event.clientX - rect.left;
+  const offsetY = event.clientY - rect.top;
+  const scaleFactor = nextScale / lightboxState.scale;
+  lightboxState.translateX =
+    offsetX - (offsetX - lightboxState.translateX) * scaleFactor;
+  lightboxState.translateY =
+    offsetY - (offsetY - lightboxState.translateY) * scaleFactor;
+  lightboxState.scale = nextScale;
+
+  if (lightboxState.scale === 1) {
+    lightboxState.translateX = 0;
+    lightboxState.translateY = 0;
+  }
+
+  applyLightboxTransform();
 }
 
 // Gambar komunitas diambil dari folder media di repo.
