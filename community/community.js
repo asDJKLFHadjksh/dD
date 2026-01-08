@@ -3,10 +3,7 @@ const CSV_URL =
 
 const latestContainer = document.getElementById("noticeLatest");
 const listContainer = document.getElementById("noticeList");
-const MEDIA_BASE = new URL(
-  "media/",
-  document.currentScript?.src || window.location.href
-).toString();
+const MEDIA_BASE = "community/media/";
 const lightboxElements = {
   overlay: document.querySelector(".notice-lightbox"),
   image: document.querySelector(".notice-lightbox__image"),
@@ -63,9 +60,7 @@ function parsePosts(csvText) {
     const [
       title = "",
       description = "",
-      imageFlag = "",
-      imagePath = "",
-      progressFlag = "",
+      imageName = "",
       progressValue = "",
       startRaw = "",
       endRaw = "",
@@ -76,9 +71,7 @@ function parsePosts(csvText) {
     return {
       title: title.trim() || "(Tanpa judul)",
       description: description.trim(),
-      imageFlag: imageFlag.trim().toUpperCase(),
-      imagePath: imagePath.trim(),
-      progressFlag: progressFlag.trim().toUpperCase(),
+      imageName: imageName.trim(),
       progressValue: progressValue.trim(),
       startRaw: startRaw.trim(),
       endRaw: endRaw.trim(),
@@ -157,13 +150,6 @@ function parseDate(value) {
   return date;
 }
 
-function isActiveToday(post, today) {
-  const startTime = post.startDate ? post.startDate.getTime() : -Infinity;
-  const endTime = post.endDate ? post.endDate.getTime() : Infinity;
-  const todayTime = today.getTime();
-  return todayTime >= startTime && todayTime <= endTime;
-}
-
 function isScheduled(post, today) {
   if (!post.startDate) {
     return false;
@@ -186,10 +172,12 @@ function isPinned(post) {
   return post.pinFlag === "I";
 }
 
+function isEligible(post, today) {
+  return !isHidden(post) && !isScheduled(post, today) && !isExpired(post, today);
+}
+
 function pickLatestNotice(posts, today) {
-  const visiblePosts = posts.filter(
-    (post) => !isHidden(post) && !isScheduled(post, today)
-  );
+  const visiblePosts = posts.filter((post) => isEligible(post, today));
   const pinnedPosts = visiblePosts.filter((post) => isPinned(post));
   if (pinnedPosts.length) {
     return pinnedPosts.reduce((latest, current) => {
@@ -211,39 +199,21 @@ function pickLatestNotice(posts, today) {
       return latest;
     }, null);
   }
-  const activePosts = visiblePosts.filter((post) => isActiveToday(post, today));
-  if (activePosts.length) {
-    return activePosts.reduce((latest, current) => {
-      if (!latest) {
-        return current;
-      }
-      const latestStart = latest.startDate
-        ? latest.startDate.getTime()
-        : -Infinity;
-      const currentStart = current.startDate
-        ? current.startDate.getTime()
-        : -Infinity;
-      if (currentStart > latestStart) {
-        return current;
-      }
-      if (currentStart === latestStart && current.rowIndex > latest.rowIndex) {
-        return current;
-      }
-      return latest;
-    }, null);
-  }
 
-  const expiredPosts = visiblePosts.filter((post) => isExpired(post, today));
-  return expiredPosts.reduce((latest, current) => {
+  return visiblePosts.reduce((latest, current) => {
     if (!latest) {
       return current;
     }
-    const latestEnd = latest.endDate ? latest.endDate.getTime() : -Infinity;
-    const currentEnd = current.endDate ? current.endDate.getTime() : -Infinity;
-    if (currentEnd > latestEnd) {
+    const latestStart = latest.startDate
+      ? latest.startDate.getTime()
+      : -Infinity;
+    const currentStart = current.startDate
+      ? current.startDate.getTime()
+      : -Infinity;
+    if (currentStart > latestStart) {
       return current;
     }
-    if (currentEnd === latestEnd && current.rowIndex > latest.rowIndex) {
+    if (currentStart === latestStart && current.rowIndex > latest.rowIndex) {
       return current;
     }
     return latest;
@@ -278,21 +248,19 @@ function renderLatestNotice(posts, container) {
   container.appendChild(title);
   container.appendChild(desc);
 
-  if (latest.imageFlag === "I" && latest.imagePath) {
-    const media = buildNoticeMedia(latest.imagePath, latest.title);
+  if (latest.imageName) {
+    const media = buildNoticeMedia(latest.imageName, latest.title);
     if (media) {
       container.appendChild(media);
     }
   }
 
-  if (latest.progressFlag === "I") {
-    const progressValue = parseProgressValue(latest.progressValue);
-    if (progressValue !== null) {
-      container.appendChild(buildProgress(progressValue, true));
-    }
+  const progressValue = parseProgressValue(latest.progressValue);
+  if (progressValue !== null) {
+    container.appendChild(buildProgress(progressValue, true));
   }
 
-  const meta = buildNoticeMeta(latest, today, { compact: true });
+  const meta = buildNoticeMeta(latest, { compact: true });
   if (meta) {
     container.appendChild(meta);
   }
@@ -307,9 +275,7 @@ function renderNoticeList(posts, container) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const visiblePosts = posts.filter(
-    (post) => !isHidden(post) && !isScheduled(post, today)
-  );
+  const visiblePosts = posts.filter((post) => isEligible(post, today));
   if (!visiblePosts.length) {
     container.innerHTML = '<p class="notice-empty">Belum ada postingan.</p>';
     return;
@@ -317,35 +283,14 @@ function renderNoticeList(posts, container) {
   const sorted = visiblePosts.sort((a, b) => {
     const aPinned = isPinned(a);
     const bPinned = isPinned(b);
-    const aActive = isActiveToday(a, today);
-    const bActive = isActiveToday(b, today);
-    const aExpired = isExpired(a, today);
-    const bExpired = isExpired(b, today);
-    const aGroup = getNoticeGroupOrder(aPinned, aActive, aExpired);
-    const bGroup = getNoticeGroupOrder(bPinned, bActive, bExpired);
-    if (aGroup !== bGroup) {
-      return aGroup - bGroup;
+    if (aPinned !== bPinned) {
+      return aPinned ? -1 : 1;
     }
 
-    if (aActive && bActive) {
-      const aStart = a.startDate ? a.startDate.getTime() : -Infinity;
-      const bStart = b.startDate ? b.startDate.getTime() : -Infinity;
-      if (aStart !== bStart) {
-        return bStart - aStart;
-      }
-      return b.rowIndex - a.rowIndex;
-    }
-
-    const aEnd = a.endDate ? a.endDate.getTime() : null;
-    const bEnd = b.endDate ? b.endDate.getTime() : null;
-    if (aEnd === null && bEnd !== null) {
-      return 1;
-    }
-    if (aEnd !== null && bEnd === null) {
-      return -1;
-    }
-    if (aEnd !== null && bEnd !== null && aEnd !== bEnd) {
-      return bEnd - aEnd;
+    const aStart = a.startDate ? a.startDate.getTime() : -Infinity;
+    const bStart = b.startDate ? b.startDate.getTime() : -Infinity;
+    if (aStart !== bStart) {
+      return bStart - aStart;
     }
     return b.rowIndex - a.rowIndex;
   });
@@ -356,18 +301,10 @@ function renderNoticeList(posts, container) {
     const card = document.createElement("article");
     card.className = "notice-item";
 
-    if (isPinned(post)) {
-      const pin = document.createElement("span");
-      pin.className = "notice-pin";
-      pin.setAttribute("aria-hidden", "true");
-      pin.textContent = "📌";
-      card.appendChild(pin);
-    }
-
     const header = document.createElement("div");
     header.className = "notice-item__header";
 
-    const meta = buildNoticeMeta(post, today);
+    const meta = buildNoticeMeta(post);
     if (meta) {
       header.appendChild(meta);
     }
@@ -386,21 +323,19 @@ function renderNoticeList(posts, container) {
 
     card.appendChild(header);
 
-    if (post.imageFlag === "I" && post.imagePath) {
-      const media = buildNoticeMedia(post.imagePath, post.title);
+    if (post.imageName) {
+      const media = buildNoticeMedia(post.imageName, post.title);
       if (media) {
         card.appendChild(media);
       }
     }
 
-    if (post.progressFlag === "I") {
-      const progressValue = parseProgressValue(post.progressValue);
-      if (progressValue !== null) {
-        card.appendChild(buildProgress(progressValue));
-      }
+    const progressValue = parseProgressValue(post.progressValue);
+    if (progressValue !== null) {
+      card.appendChild(buildProgress(progressValue));
     }
 
-    const statusDot = buildStatusDot(post, today);
+    const statusDot = buildStatusDot(post);
     if (statusDot) {
       card.appendChild(statusDot);
     }
@@ -409,26 +344,10 @@ function renderNoticeList(posts, container) {
   });
 }
 
-function getNoticeGroupOrder(isPinnedPost, isActivePost, isExpiredPost) {
-  if (isPinnedPost && isActivePost) {
-    return 0;
-  }
-  if (isPinnedPost && isExpiredPost) {
-    return 1;
-  }
-  if (!isPinnedPost && isActivePost) {
-    return 2;
-  }
-  return 3;
-}
-
-function buildStatusDot(post, today) {
-  const status = getStatusInfo(post, today);
-  if (!status) {
-    return null;
-  }
+function buildStatusDot(post) {
   const dot = document.createElement("span");
-  dot.className = `notice-status-dot notice-status-dot--${status.key}`;
+  const variant = isPinned(post) ? "pinned" : "normal";
+  dot.className = `notice-status-dot notice-status-dot--${variant}`;
   dot.setAttribute("aria-hidden", "true");
   return dot;
 }
@@ -470,33 +389,20 @@ function buildProgress(value, isCompact = false) {
   return wrapper;
 }
 
-function buildNoticeMeta(post, today, { compact = false } = {}) {
+function buildNoticeMeta(post, { compact = false } = {}) {
   const meta = document.createElement("div");
   meta.className = compact ? "notice-meta notice-meta--compact" : "notice-meta";
 
-  if (post.startRaw) {
-    const start = document.createElement("span");
-    start.textContent = `Publish: ${post.startRaw}`;
-    meta.appendChild(start);
-  }
-
-  if (post.endRaw) {
-    const end = document.createElement("span");
-    end.textContent = `Expired: ${post.endRaw}`;
-    meta.appendChild(end);
-  }
-
-  if (!meta.children.length) {
-    return null;
-  }
+  const startLabel = post.startRaw || "—";
+  const endLabel = post.endRaw || "—";
+  const dateInfo = document.createElement("span");
+  dateInfo.textContent = `Publish: ${startLabel} · Expired: ${endLabel}`;
+  meta.appendChild(dateInfo);
   return meta;
 }
 
-function buildNoticeMedia(url, title) {
-  const resolvedSrc = resolveImageSrc(url);
-  if (!resolvedSrc) {
-    return null;
-  }
+function buildNoticeMedia(imageName, title) {
+  const resolvedSrc = `${MEDIA_BASE}${imageName}`;
   const wrapper = document.createElement("div");
   wrapper.className = "notice-media";
 
@@ -687,51 +593,6 @@ async function copyToClipboard(text) {
     console.warn("Fallback clipboard gagal.", error);
   }
   document.body.removeChild(textarea);
-}
-
-function resolveImageSrc(valueFromSheet) {
-  if (!valueFromSheet) {
-    return "";
-  }
-  const trimmed = valueFromSheet.trim();
-  if (!trimmed) {
-    return "";
-  }
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed;
-  }
-  if (trimmed.includes("/")) {
-    return trimmed;
-  }
-  return `${MEDIA_BASE}${trimmed}`;
-}
-
-function getStatusInfo(post, today) {
-  const todayTime = today.getTime();
-  const startTime = post.startDate ? post.startDate.getTime() : -Infinity;
-  const endTime = post.endDate ? post.endDate.getTime() : Infinity;
-
-  if (todayTime < startTime) {
-    return {
-      key: "upcoming",
-      tooltip: "Belum mulai",
-      badge: "Belum mulai",
-    };
-  }
-
-  if (todayTime > endTime) {
-    return {
-      key: "ended",
-      tooltip: "Arsip / Sudah berakhir",
-      badge: "Arsip",
-    };
-  }
-
-  return {
-    key: "active",
-    tooltip: "Aktif / Sedang berlangsung",
-    badge: "",
-  };
 }
 
 function setupLightbox() {

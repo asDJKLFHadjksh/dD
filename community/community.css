@@ -109,13 +109,6 @@
   position: relative;
 }
 
-.notice-pin {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  font-size: 1.05rem;
-  opacity: 0.85;
-}
 
 .notice-item__header {
   display: flex;
@@ -185,10 +178,6 @@
   gap: 6px;
 }
 
-.notice-meta__status {
-  color: var(--notice-accent);
-}
-
 .notice-meta--compact {
   margin-top: 10px;
   gap: 8px;
@@ -209,13 +198,12 @@
   box-shadow: 0 0 0 6px rgba(138, 78, 255, 0.08);
 }
 
-.notice-status-dot--active {
+.notice-status-dot--pinned {
   background: #4ade80;
   box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.12);
 }
 
-.notice-status-dot--upcoming,
-.notice-status-dot--ended {
+.notice-status-dot--normal {
   background: var(--notice-accent);
 }
 
