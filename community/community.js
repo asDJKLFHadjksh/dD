@@ -614,6 +614,7 @@ function setupLightbox() {
   if (!overlay || !image || !closeButton) {
     return;
   }
+  image.setAttribute("draggable", "false");
 
   document.addEventListener("click", (event) => {
     const target = event.target.closest(".notice-image");
@@ -640,9 +641,10 @@ function setupLightbox() {
     if (!overlay.classList.contains("is-open")) {
       return;
     }
-    if (lightboxState.scale <= 1) {
+    if (lightboxState.scale <= 1.01) {
       return;
     }
+    event.preventDefault();
     lightboxState.isPanning = true;
     lightboxState.startX = event.clientX;
     lightboxState.startY = event.clientY;
@@ -656,6 +658,7 @@ function setupLightbox() {
     if (!lightboxState.isPanning) {
       return;
     }
+    event.preventDefault();
     const deltaX = event.clientX - lightboxState.startX;
     const deltaY = event.clientY - lightboxState.startY;
     lightboxState.translateX = lightboxState.startTranslateX + deltaX;
@@ -759,10 +762,10 @@ function setLightboxCursor() {
   if (!image) {
     return;
   }
-  if (lightboxState.scale > 1) {
+  if (lightboxState.scale > 1.01) {
     image.style.cursor = lightboxState.isPanning ? "grabbing" : "grab";
   } else {
-    image.style.cursor = "zoom-in";
+    image.style.cursor = "default";
   }
 }
 
@@ -799,7 +802,7 @@ function handleLightboxZoom(event) {
     offsetY - (offsetY - lightboxState.translateY) * scaleFactor;
   lightboxState.scale = nextScale;
 
-  if (lightboxState.scale === 1) {
+  if (lightboxState.scale <= 1.01) {
     lightboxState.translateX = 0;
     lightboxState.translateY = 0;
   }

@@ -241,6 +241,8 @@
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
   z-index: 999;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .notice-lightbox.is-open {
@@ -256,9 +258,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
   transform-origin: 0 0;
-  cursor: zoom-in;
+  cursor: default;
   user-select: none;
   touch-action: none;
+  -webkit-user-drag: none;
 }
 
 .notice-lightbox__close {

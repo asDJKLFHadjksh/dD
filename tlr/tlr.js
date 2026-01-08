@@ -253,10 +253,12 @@ function buildCard(item) {
   title.textContent = item.title;
   card.appendChild(title);
 
-  const materi = document.createElement("p");
-  materi.className = "tlr-card__materi";
-  materi.appendChild(parseInteractiveMarkers(item.materi));
-  card.appendChild(materi);
+  if (item.publishDate) {
+    const meta = document.createElement("div");
+    meta.className = "tlr-card__meta";
+    meta.textContent = formatPublishDate(item.publishDate);
+    card.appendChild(meta);
+  }
 
   if (item.categories.length) {
     const badges = document.createElement("div");
@@ -275,6 +277,11 @@ function buildCard(item) {
     card.appendChild(evidenceBlock);
   }
 
+  const materi = document.createElement("p");
+  materi.className = "tlr-card__materi";
+  materi.appendChild(parseInteractiveMarkers(item.materi));
+  card.appendChild(materi);
+
   if (item.downloadLink) {
     const actions = document.createElement("div");
     actions.className = "tlr-actions";
@@ -291,6 +298,14 @@ function buildCard(item) {
   }
 
   return card;
+}
+
+function formatPublishDate(date) {
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function buildEvidenceBlock(item) {
@@ -530,6 +545,7 @@ function setupLightbox() {
   if (!overlay || !image || !closeButton) {
     return;
   }
+  image.setAttribute("draggable", "false");
 
   image.addEventListener("load", () => {
     resetLightboxTransform();
@@ -569,11 +585,11 @@ function setupLightbox() {
     { passive: false }
   );
 
-  image.addEventListener("mousedown", (event) => {
+  image.addEventListener("pointerdown", (event) => {
     if (!overlay.classList.contains("is-open")) {
       return;
     }
-    if (lightboxState.scale <= 1) {
+    if (lightboxState.scale <= 1.01) {
       return;
     }
     event.preventDefault();
@@ -581,9 +597,10 @@ function setupLightbox() {
     lightboxState.lastMouseX = event.clientX;
     lightboxState.lastMouseY = event.clientY;
     image.classList.add("is-dragging");
+    image.setPointerCapture(event.pointerId);
   });
 
-  window.addEventListener("mousemove", (event) => {
+  image.addEventListener("pointermove", (event) => {
     if (!lightboxState.isDragging) {
       return;
     }
@@ -598,13 +615,19 @@ function setupLightbox() {
     applyLightboxTransform();
   });
 
-  window.addEventListener("mouseup", () => {
+  const stopDragging = (event) => {
     if (!lightboxState.isDragging) {
       return;
     }
     lightboxState.isDragging = false;
     image.classList.remove("is-dragging");
-  });
+    if (event?.pointerId !== undefined) {
+      image.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  image.addEventListener("pointerup", stopDragging);
+  image.addEventListener("pointercancel", stopDragging);
 
   image.addEventListener("dblclick", (event) => {
     if (!overlay.classList.contains("is-open")) {
@@ -687,7 +710,7 @@ function zoomLightboxTo(nextScale, clientX, clientY) {
   lightboxState.tx -= offsetX * (scaleRatio - 1);
   lightboxState.ty -= offsetY * (scaleRatio - 1);
   lightboxState.scale = clampedScale;
-  if (lightboxState.scale <= 1) {
+  if (lightboxState.scale <= 1.01) {
     lightboxState.tx = 0;
     lightboxState.ty = 0;
   }
@@ -730,7 +753,7 @@ function applyLightboxTransform() {
     return;
   }
   image.style.transform = `translate(${lightboxState.tx}px, ${lightboxState.ty}px) scale(${lightboxState.scale})`;
-  if (lightboxState.scale > 1) {
+  if (lightboxState.scale > 1.01) {
     image.classList.add("is-zoomed");
   } else {
     image.classList.remove("is-zoomed");

@@ -100,8 +100,17 @@ body {
   font-size: 1.2rem;
 }
 
+.tlr-card__meta {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(233, 226, 255, 0.6);
+}
+
 .tlr-card__materi {
   margin: 0;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   line-height: 1.6;
   color: var(--tlr-muted);
   font-size: 0.9rem;
@@ -132,6 +141,7 @@ body {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.25);
 }
 
 .tlr-evidence iframe,
@@ -272,8 +282,9 @@ body {
   transform: translate(0, 0) scale(1);
   transform-origin: center;
   transition: transform 0.15s ease;
-  cursor: grab;
+  cursor: default;
   user-select: none;
+  -webkit-user-drag: none;
 }
 
 .tlr-lightbox__image.is-dragging {
