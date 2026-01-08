@@ -269,7 +269,9 @@ function renderLatestNotice(posts, container) {
 
   const desc = document.createElement("p");
   desc.className = "notice-latest__desc";
-  desc.textContent = latest.description || "(Tanpa deskripsi)";
+  desc.replaceChildren(
+    renderSafeTextWithLinks(latest.description || "(Tanpa deskripsi)")
+  );
 
   container.appendChild(title);
   container.appendChild(desc);
@@ -375,7 +377,9 @@ function renderNoticeList(posts, container) {
 
     const desc = document.createElement("p");
     desc.className = "notice-item__desc";
-    desc.textContent = post.description || "(Tanpa deskripsi)";
+    desc.replaceChildren(
+      renderSafeTextWithLinks(post.description || "(Tanpa deskripsi)")
+    );
     header.appendChild(desc);
 
     card.appendChild(header);
@@ -506,6 +510,57 @@ function buildNoticeMedia(url, title) {
 
   wrapper.appendChild(image);
   return wrapper;
+}
+
+function renderSafeTextWithLinks(text) {
+  const fragment = document.createDocumentFragment();
+  const normalized = (text || "").replace(/\r\n?/g, "\n");
+  const linkPattern =
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"']+)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkPattern.exec(normalized))) {
+    const { index } = match;
+    if (index > lastIndex) {
+      appendTextWithLineBreaks(fragment, normalized.slice(lastIndex, index));
+    }
+
+    if (match[3]) {
+      appendLink(fragment, match[3], match[3]);
+    } else {
+      appendLink(fragment, match[2], match[1]);
+    }
+
+    lastIndex = linkPattern.lastIndex;
+  }
+
+  if (lastIndex < normalized.length) {
+    appendTextWithLineBreaks(fragment, normalized.slice(lastIndex));
+  }
+
+  return fragment;
+}
+
+function appendTextWithLineBreaks(container, text) {
+  const parts = text.split("\n");
+  parts.forEach((part, index) => {
+    if (part) {
+      container.appendChild(document.createTextNode(part));
+    }
+    if (index < parts.length - 1) {
+      container.appendChild(document.createElement("br"));
+    }
+  });
+}
+
+function appendLink(container, url, label) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = label;
+  container.appendChild(link);
 }
 
 function resolveImageSrc(valueFromSheet) {
