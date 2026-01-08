@@ -172,7 +172,9 @@
       });
     };
 
-    fetch('/config/links.json')
+    const linksUrl = new URL('../config/links.json', window.location.href);
+
+    fetch(linksUrl)
       .then((response) => response.json())
       .then((data) => renderLinks(data?.links))
       .catch(() => renderLinks());
