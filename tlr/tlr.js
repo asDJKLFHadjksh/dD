@@ -12,6 +12,17 @@ const lightboxElements = {
   closeButton: document.querySelector(".tlr-lightbox__close"),
 };
 
+const lightboxState = {
+  scale: 1,
+  tx: 0,
+  ty: 0,
+  isDragging: false,
+  lastMouseX: 0,
+  lastMouseY: 0,
+  baseWidth: 0,
+  baseHeight: 0,
+};
+
 let visibleItems = [];
 
 setupCopyInteractions(listContainer);
@@ -520,6 +531,13 @@ function setupLightbox() {
     return;
   }
 
+  image.addEventListener("load", () => {
+    resetLightboxTransform();
+    const rect = image.getBoundingClientRect();
+    lightboxState.baseWidth = rect.width;
+    lightboxState.baseHeight = rect.height;
+  });
+
   document.addEventListener("click", (event) => {
     const target = event.target.closest(".tlr-evidence-img");
     if (!target) {
@@ -537,6 +555,64 @@ function setupLightbox() {
 
   closeButton.addEventListener("click", () => {
     closeLightbox();
+  });
+
+  overlay.addEventListener(
+    "wheel",
+    (event) => {
+      if (!overlay.classList.contains("is-open")) {
+        return;
+      }
+      event.preventDefault();
+      handleLightboxZoom(event);
+    },
+    { passive: false }
+  );
+
+  image.addEventListener("mousedown", (event) => {
+    if (!overlay.classList.contains("is-open")) {
+      return;
+    }
+    if (lightboxState.scale <= 1) {
+      return;
+    }
+    event.preventDefault();
+    lightboxState.isDragging = true;
+    lightboxState.lastMouseX = event.clientX;
+    lightboxState.lastMouseY = event.clientY;
+    image.classList.add("is-dragging");
+  });
+
+  window.addEventListener("mousemove", (event) => {
+    if (!lightboxState.isDragging) {
+      return;
+    }
+    event.preventDefault();
+    const deltaX = event.clientX - lightboxState.lastMouseX;
+    const deltaY = event.clientY - lightboxState.lastMouseY;
+    lightboxState.lastMouseX = event.clientX;
+    lightboxState.lastMouseY = event.clientY;
+    lightboxState.tx += deltaX;
+    lightboxState.ty += deltaY;
+    clampLightboxTranslate();
+    applyLightboxTransform();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!lightboxState.isDragging) {
+      return;
+    }
+    lightboxState.isDragging = false;
+    image.classList.remove("is-dragging");
+  });
+
+  image.addEventListener("dblclick", (event) => {
+    if (!overlay.classList.contains("is-open")) {
+      return;
+    }
+    event.preventDefault();
+    const targetScale = lightboxState.scale > 1 ? 1 : 2;
+    zoomLightboxTo(targetScale, event.clientX, event.clientY);
   });
 
   document.addEventListener("keydown", (event) => {
@@ -561,6 +637,7 @@ function openLightbox(targetImage) {
   overlay.classList.add("is-open");
   overlay.setAttribute("aria-hidden", "false");
   document.body.classList.add("tlr-lightbox-open");
+  resetLightboxTransform();
 }
 
 function closeLightbox() {
@@ -572,4 +649,90 @@ function closeLightbox() {
   overlay.setAttribute("aria-hidden", "true");
   image.removeAttribute("src");
   document.body.classList.remove("tlr-lightbox-open");
+  resetLightboxTransform();
+}
+
+function resetLightboxTransform() {
+  lightboxState.scale = 1;
+  lightboxState.tx = 0;
+  lightboxState.ty = 0;
+  lightboxState.isDragging = false;
+  applyLightboxTransform();
+}
+
+function handleLightboxZoom(event) {
+  const direction = event.deltaY > 0 ? -1 : 1;
+  const zoomFactor = direction > 0 ? 1.12 : 0.88;
+  const nextScale = lightboxState.scale * zoomFactor;
+  zoomLightboxTo(nextScale, event.clientX, event.clientY);
+}
+
+function zoomLightboxTo(nextScale, clientX, clientY) {
+  const { overlay, image } = lightboxElements;
+  if (!overlay || !image) {
+    return;
+  }
+  const minScale = 1;
+  const maxScale = 4;
+  const clampedScale = Math.min(maxScale, Math.max(minScale, nextScale));
+  const scaleRatio = clampedScale / lightboxState.scale;
+  if (scaleRatio === 1) {
+    return;
+  }
+  const rect = image.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const offsetX = clientX - centerX;
+  const offsetY = clientY - centerY;
+  lightboxState.tx -= offsetX * (scaleRatio - 1);
+  lightboxState.ty -= offsetY * (scaleRatio - 1);
+  lightboxState.scale = clampedScale;
+  if (lightboxState.scale <= 1) {
+    lightboxState.tx = 0;
+    lightboxState.ty = 0;
+  }
+  clampLightboxTranslate();
+  applyLightboxTransform();
+}
+
+function clampLightboxTranslate() {
+  const { overlay } = lightboxElements;
+  if (!overlay) {
+    return;
+  }
+  const baseWidth =
+    lightboxState.baseWidth ||
+    lightboxElements.image?.getBoundingClientRect().width ||
+    0;
+  const baseHeight =
+    lightboxState.baseHeight ||
+    lightboxElements.image?.getBoundingClientRect().height ||
+    0;
+  const scaledWidth = baseWidth * lightboxState.scale;
+  const scaledHeight = baseHeight * lightboxState.scale;
+  const boundsWidth = overlay.clientWidth;
+  const boundsHeight = overlay.clientHeight;
+  const maxTranslateX = Math.max(0, (scaledWidth - boundsWidth) / 2);
+  const maxTranslateY = Math.max(0, (scaledHeight - boundsHeight) / 2);
+  lightboxState.tx = Math.min(
+    maxTranslateX,
+    Math.max(-maxTranslateX, lightboxState.tx)
+  );
+  lightboxState.ty = Math.min(
+    maxTranslateY,
+    Math.max(-maxTranslateY, lightboxState.ty)
+  );
+}
+
+function applyLightboxTransform() {
+  const { image } = lightboxElements;
+  if (!image) {
+    return;
+  }
+  image.style.transform = `translate(${lightboxState.tx}px, ${lightboxState.ty}px) scale(${lightboxState.scale})`;
+  if (lightboxState.scale > 1) {
+    image.classList.add("is-zoomed");
+  } else {
+    image.classList.remove("is-zoomed");
+  }
 }
