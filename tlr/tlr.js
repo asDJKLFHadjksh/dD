@@ -6,10 +6,16 @@ const TLR_MEDIA_BASE = "media/";
 const searchInput = document.getElementById("tlrSearch");
 const categorySelect = document.getElementById("tlrCategory");
 const listContainer = document.getElementById("tlrList");
+const lightboxElements = {
+  overlay: document.querySelector(".tlr-lightbox"),
+  image: document.querySelector(".tlr-lightbox__image"),
+  closeButton: document.querySelector(".tlr-lightbox__close"),
+};
 
 let visibleItems = [];
 
 setupCopyInteractions(listContainer);
+setupLightbox();
 
 loadTLR();
 
@@ -318,9 +324,11 @@ function buildEvidenceBlock(item) {
 
   wrapper.classList.add("tlr-evidence--media");
   const image = document.createElement("img");
+  image.className = "tlr-evidence-img";
   image.src = resolvedSrc;
   image.alt = item.title;
   image.loading = "lazy";
+  image.dataset.fullsrc = resolvedSrc;
   image.addEventListener("error", () => {
     wrapper.style.display = "none";
   });
@@ -504,4 +512,64 @@ async function copyToClipboard(text) {
     console.warn("Fallback clipboard gagal.", error);
   }
   document.body.removeChild(textarea);
+}
+
+function setupLightbox() {
+  const { overlay, image, closeButton } = lightboxElements;
+  if (!overlay || !image || !closeButton) {
+    return;
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target.closest(".tlr-evidence-img");
+    if (!target) {
+      return;
+    }
+    event.preventDefault();
+    openLightbox(target);
+  });
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closeLightbox();
+    }
+  });
+
+  closeButton.addEventListener("click", () => {
+    closeLightbox();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && overlay.classList.contains("is-open")) {
+      closeLightbox();
+    }
+  });
+}
+
+function openLightbox(targetImage) {
+  const { overlay, image } = lightboxElements;
+  if (!overlay || !image) {
+    return;
+  }
+  const fullSrc =
+    targetImage.dataset.fullsrc || targetImage.currentSrc || targetImage.src;
+  if (!fullSrc) {
+    return;
+  }
+  image.src = fullSrc;
+  image.alt = targetImage.alt || "Preview gambar";
+  overlay.classList.add("is-open");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("tlr-lightbox-open");
+}
+
+function closeLightbox() {
+  const { overlay, image } = lightboxElements;
+  if (!overlay || !image) {
+    return;
+  }
+  overlay.classList.remove("is-open");
+  overlay.setAttribute("aria-hidden", "true");
+  image.removeAttribute("src");
+  document.body.classList.remove("tlr-lightbox-open");
 }
