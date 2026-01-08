@@ -18,6 +18,8 @@ if (latestContainer || listContainer) {
 }
 
 setupLightbox();
+setupCopyInteractions(latestContainer);
+setupCopyInteractions(listContainer);
 
 async function loadNotices() {
   try {
@@ -270,7 +272,7 @@ function renderLatestNotice(posts, container) {
   const desc = document.createElement("p");
   desc.className = "notice-latest__desc";
   desc.replaceChildren(
-    renderSafeTextWithLinks(latest.description || "(Tanpa deskripsi)")
+    parseInteractiveMarkers(latest.description || "(Tanpa deskripsi)")
   );
 
   container.appendChild(title);
@@ -378,7 +380,7 @@ function renderNoticeList(posts, container) {
     const desc = document.createElement("p");
     desc.className = "notice-item__desc";
     desc.replaceChildren(
-      renderSafeTextWithLinks(post.description || "(Tanpa deskripsi)")
+      parseInteractiveMarkers(post.description || "(Tanpa deskripsi)")
     );
     header.appendChild(desc);
 
@@ -512,6 +514,57 @@ function buildNoticeMedia(url, title) {
   return wrapper;
 }
 
+function escapeHTML(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function parseInteractiveMarkers(rawText) {
+  const fragment = document.createDocumentFragment();
+  const normalized = (rawText || "").replace(/\r\n?/g, "\n");
+  const markerPattern = /\?\[([\s\S]*?)\]\?|\?\{([\s\S]*?)\}\?/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = markerPattern.exec(normalized))) {
+    const { index } = match;
+    if (index > lastIndex) {
+      fragment.appendChild(
+        renderSafeTextWithLinks(normalized.slice(lastIndex, index))
+      );
+    }
+
+    if (match[1] !== undefined) {
+      fragment.appendChild(buildInteractiveSpan(match[1], "cc-copy"));
+    } else if (match[2] !== undefined) {
+      fragment.appendChild(buildInteractiveSpan(match[2], "cc-link", true));
+    }
+
+    lastIndex = markerPattern.lastIndex;
+  }
+
+  if (lastIndex < normalized.length) {
+    fragment.appendChild(renderSafeTextWithLinks(normalized.slice(lastIndex)));
+  }
+
+  return fragment;
+}
+
+function buildInteractiveSpan(value, className, isLink = false) {
+  const span = document.createElement("span");
+  span.className = className;
+  span.textContent = value;
+  span.dataset.copy = value;
+  if (isLink) {
+    span.dataset.open = value;
+  }
+  return span;
+}
+
 function renderSafeTextWithLinks(text) {
   const fragment = document.createDocumentFragment();
   const normalized = (text || "").replace(/\r\n?/g, "\n");
@@ -561,6 +614,79 @@ function appendLink(container, url, label) {
   link.rel = "noopener noreferrer";
   link.textContent = label;
   container.appendChild(link);
+}
+
+function setupCopyInteractions(container) {
+  if (!container) {
+    return;
+  }
+
+  container.addEventListener("click", (event) => {
+    const target = event.target.closest(".cc-copy, .cc-link");
+    if (!target || !container.contains(target)) {
+      return;
+    }
+    const value = target.dataset.copy || "";
+    copyToClipboard(value);
+    triggerCopyFeedback(target);
+  });
+
+  container.addEventListener("dblclick", (event) => {
+    const target = event.target.closest(".cc-link");
+    if (!target || !container.contains(target)) {
+      return;
+    }
+    const url = target.dataset.open;
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  });
+}
+
+const copyFeedbackTimers = new WeakMap();
+
+function triggerCopyFeedback(element) {
+  if (!element) {
+    return;
+  }
+  element.classList.add("copied");
+  const existingTimer = copyFeedbackTimers.get(element);
+  if (existingTimer) {
+    clearTimeout(existingTimer);
+  }
+  const timer = window.setTimeout(() => {
+    element.classList.remove("copied");
+  }, 600);
+  copyFeedbackTimers.set(element, timer);
+}
+
+async function copyToClipboard(text) {
+  if (!text) {
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (error) {
+      console.warn("Clipboard API gagal, coba fallback.", error);
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+  } catch (error) {
+    console.warn("Fallback clipboard gagal.", error);
+  }
+  document.body.removeChild(textarea);
 }
 
 function resolveImageSrc(valueFromSheet) {

@@ -137,6 +137,39 @@
   margin: 0;
 }
 
+.cc-copy,
+.cc-link {
+  color: var(--notice-accent);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.cc-copy:hover,
+.cc-link:hover {
+  text-decoration: underline;
+}
+
+.cc-copy.copied,
+.cc-link.copied {
+  text-shadow: 0 0 8px rgba(138, 78, 255, 0.45);
+}
+
+.cc-copy.copied::after,
+.cc-link.copied::after {
+  content: "Copied!";
+  position: absolute;
+  top: -22px;
+  left: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  background: rgba(138, 78, 255, 0.2);
+  color: #e6d9ff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .notice-meta {
   font-size: 0.78rem;
   color: var(--notice-text-muted);
