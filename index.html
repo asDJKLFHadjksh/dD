@@ -89,6 +89,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 22px;
+      align-items: start;
     }
 
     .card {
@@ -254,6 +255,13 @@
   <a href="EE.html" class="floating-cta">
     🎬 Order Editing
   </a>
+
+  <div class="notice-lightbox" aria-hidden="true">
+    <button class="notice-lightbox__close" type="button" aria-label="Tutup">
+      &times;
+    </button>
+    <img class="notice-lightbox__image" alt="Preview gambar" />
+  </div>
 
   <script src="assets/js/link-list.js"></script>
   <script src="community/community.js"></script>
