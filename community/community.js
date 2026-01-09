@@ -24,17 +24,25 @@ const LIGHTBOX_SCALE_MIN = 1;
 const LIGHTBOX_SCALE_MAX = 4.5;
 const LIGHTBOX_SCALE_STEP = 0.25;
 
-if (latestContainer || listContainer) {
-  loadNotices();
+if (!window.__communityInit) {
+  window.__communityInit = true;
+  if (latestContainer || listContainer) {
+    loadNotices();
+  }
+
+  setupLightbox();
+  setupCopyInteractions(latestContainer);
+  setupCopyInteractions(listContainer);
 }
 
-setupLightbox();
-setupCopyInteractions(latestContainer);
-setupCopyInteractions(listContainer);
-
 async function loadNotices() {
+  if (typeof window.showMiniLoader === "function") {
+    window.showMiniLoader();
+  }
   try {
-    const response = await fetch(CSV_URL, { cache: "no-store" });
+    const response = await window.fetchWithMiniLoader(CSV_URL, {
+      cache: "no-store",
+    });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
@@ -58,6 +66,10 @@ async function loadNotices() {
     if (listContainer) {
       listContainer.innerHTML =
         '<p class="notice-error">Gagal memuat daftar postingan. Silakan refresh halaman.</p>';
+    }
+  } finally {
+    if (typeof window.hideMiniLoader === "function") {
+      window.hideMiniLoader();
     }
   }
 }
