@@ -51,7 +51,7 @@
         <div class="logo"><img src="img/Logo.png" alt="Logo"></div> <!-- path updated -->
         <div>
           <h1>Order — <span id="pkgName">Loading...</span></h1>
-          <p class="lead">Hitung harga otomatis • Validasi deadline realistis • Buffer fee durasi panjang • WhatsApp redirect</p>
+          <p class="lead">Hitung harga otomatis • Validasi deadline realistis • Buffer fee durasi harga tetap panjang • WhatsApp redirect</p>
         </div>
       </div>
       <div class="muted" style="font-size:17px; color:var(--accent); font-weight:bold;">Tidak ada nego atau harga temen!</div>
@@ -64,7 +64,7 @@
         <h2>Form Pesanan</h2>
         <div class="row">
           <div>
-            <label for="durasi">Durasi total (menit) *</label>
+            <label for="durasi">Durasi Harga Tetap total (menit) *</label>
             <input id="durasi" type="number" min="1" step="1" required>
             <div class="helper">Overtime dihitung di atas 5 menit.</div>
           </div>
@@ -299,7 +299,7 @@
       const phone=String(cfg.whatsapp);
       const msg=[
         `*Paket:* ${pkg.name}`,
-        `*Durasi:* ${btn.dataset.durasi} menit`,
+        `*Durasi Harga Tetap:* ${btn.dataset.durasi} menit`,
         `*Deadline:* ${btn.dataset.days} hari (mulai sesuai jam kerja, setelah file RAW diterima)`,
         '',
         `*Ringkasan:*`,

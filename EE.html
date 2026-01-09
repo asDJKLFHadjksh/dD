@@ -350,11 +350,11 @@
     <div class="modal-box">
       <button id="modalClose" class="modal-close">Tutup</button>
       <h2>Kebijakan Global</h2>
-      <h3>Revisi</h3>
+      <h3>Gratis Revisi</h3>
       <ul>
-        <li>Revisi minor (typo, glitch, potong scene kecil) gratis x kali sesuai paket.</li>
-        <li>Revisi besar (ubah konsep, ganti footage utama, tambah durasi) dihitung biaya tambahan.</li>
-        <li>Permintaan revisi di luar jangka waktu yang disepakati akan dianggap proyek baru.</li>
+        <li>Gratis Revisi minor (typo, glitch, potong scene kecil) gratis x kali sesuai paket.</li>
+        <li>Gratis Revisi besar (ubah konsep, ganti footage utama, tambah durasi harga tetap) dihitung biaya tambahan.</li>
+        <li>Permintaan Gratis Revisi di luar jangka deadline yang disepakati akan dianggap proyek baru.</li>
       </ul>
       <h3>Hak untuk Portofolio</h3>
       <ul>
@@ -370,7 +370,7 @@
       </ul>
       <h3>Pembayaran Tidak Terselesaikan / Klien Kabur</h3>
       <ul>
-        <li>Jika sisa pembayaran tidak dilunasi dalam waktu ___ hari setelah hasil final diserahkan,
+        <li>Jika sisa pembayaran tidak dilunasi dalam deadline ___ hari setelah hasil final diserahkan,
           editor berhak menahan file final tanpa watermark dan/atau tidak memberikan hak penggunaan.</li>
         <li>Jika setelah tenggat tetap tidak ada pelunasan, editor berhak mempublikasikan kembali hasil karya sebagai portofolio dan menagih sesuai hukum yang berlaku.</li>
       </ul>
@@ -734,7 +734,7 @@
             <div class="card-face card-front">
               ${isRekom?'<div class="ribbon">Rekomendasi</div>':''}
               <h3>${escapeHtml(pkg.name)}</h3>
-              <div class="meta">Revisi: ${pkg.revisions} • Durasi: ${pkg.durationText} • Waktu: ${pkg.leadTime}</div>
+              <div class="meta">Gratis Revisi: ${pkg.revisions} • Durasi Harga Tetap: ${pkg.durationText} • Deadline: ${pkg.leadTime}</div>
               <div class="price-box">
                 ${percent>0?`<span class="old-price">IDR ${numberWithSeparators(normal)}</span><span class="disc-badge">-${percent}%</span>`:''}
                 <div class="price">IDR ${numberWithSeparators(final)}</div>
