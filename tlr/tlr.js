@@ -24,6 +24,7 @@ const lightboxState = {
 };
 
 let visibleItems = [];
+let tlrLoaded = false;
 
 setupCopyInteractions(listContainer);
 setupLightbox();
@@ -37,6 +38,11 @@ async function loadTLR() {
   if (!listContainer) {
     return;
   }
+  if (tlrLoaded) {
+    return;
+  }
+  tlrLoaded = true;
+  window.showMiniLoader?.();
 
   try {
     const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
@@ -58,6 +64,8 @@ async function loadTLR() {
     console.error("Gagal memuat data TLR:", error);
     listContainer.innerHTML =
       '<p class="tlr-empty">Gagal memuat data TLR. Silakan refresh halaman.</p>';
+  } finally {
+    window.hideMiniLoader?.();
   }
 }
 
