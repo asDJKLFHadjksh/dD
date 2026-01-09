@@ -25,33 +25,21 @@ const lightboxState = {
 
 let visibleItems = [];
 
-if (!window.__tlrInit) {
-  window.__tlrInit = true;
-  setupCopyInteractions(listContainer);
-  setupLightbox();
+setupCopyInteractions(listContainer);
+setupLightbox();
 
-  loadTLR();
+loadTLR();
 
-  if (searchInput) {
-    searchInput.addEventListener("input", () => applyFilters());
-  }
-  if (categorySelect) {
-    categorySelect.addEventListener("change", () => applyFilters());
-  }
-}
+searchInput.addEventListener("input", () => applyFilters());
+categorySelect.addEventListener("change", () => applyFilters());
 
 async function loadTLR() {
   if (!listContainer) {
     return;
   }
 
-  if (typeof window.showMiniLoader === "function") {
-    window.showMiniLoader();
-  }
   try {
-    const response = await window.fetchWithMiniLoader(TLR_CSV_URL, {
-      cache: "no-store",
-    });
+    const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
@@ -70,10 +58,6 @@ async function loadTLR() {
     console.error("Gagal memuat data TLR:", error);
     listContainer.innerHTML =
       '<p class="tlr-empty">Gagal memuat data TLR. Silakan refresh halaman.</p>';
-  } finally {
-    if (typeof window.hideMiniLoader === "function") {
-      window.hideMiniLoader();
-    }
   }
 }
 
