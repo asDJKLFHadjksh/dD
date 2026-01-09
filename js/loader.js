@@ -1,11 +1,12 @@
 (() => {
   const LOADER_ID = "miniLoader";
   const ANIMATION_ID = "miniLoaderAnimation";
-  const LOADER_PATH = new URL("assets/lottie/Loading.json", document.baseURI).toString();
-  const ROOT_LOADER_PATH = new URL("/assets/lottie/Loading.json", document.baseURI).toString();
-  const RESOLVED_LOADER_PATH = LOADER_PATH.startsWith(`${window.location.origin}/assets/`)
-    ? LOADER_PATH
-    : ROOT_LOADER_PATH;
+  const LOADER_CANDIDATES = [
+    new URL("assets/lottie/Loading.json", document.baseURI).toString(),
+    new URL("../assets/lottie/Loading.json", document.baseURI).toString(),
+    new URL("../../assets/lottie/Loading.json", document.baseURI).toString(),
+    "/assets/lottie/Loading.json",
+  ];
   const LOTTIE_CDN = "https://unpkg.com/lottie-web/build/player/lottie.min.js";
   let loadingCount = 0;
   let animationInstance = null;
@@ -107,6 +108,20 @@
     loader.classList.add("use-fallback");
   };
 
+  const resolveLoaderJsonUrl = async () => {
+    for (const candidate of LOADER_CANDIDATES) {
+      try {
+        const response = await fetch(candidate, { method: "GET", cache: "no-store" });
+        if (response.ok) {
+          return candidate;
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+    return null;
+  };
+
   const initLottie = async () => {
     if (animationInstance) return;
     try {
@@ -116,14 +131,24 @@
         enableFallback();
         return;
       }
+      const resolvedUrl = await resolveLoaderJsonUrl();
+      if (!resolvedUrl) {
+        console.warn("Semua kandidat loader JSON gagal dimuat. Menampilkan fallback.");
+        enableFallback();
+        return;
+      }
+      console.info("Loader JSON URL:", resolvedUrl);
       animationInstance = window.lottie.loadAnimation({
         container,
         renderer: "svg",
         loop: true,
         autoplay: true,
-        path: RESOLVED_LOADER_PATH,
+        path: resolvedUrl,
       });
-      animationInstance.addEventListener("data_failed", enableFallback);
+      animationInstance.addEventListener("data_failed", () => {
+        console.warn("Gagal memuat data animasi Lottie. Menampilkan fallback.");
+        enableFallback();
+      });
     } catch (error) {
       console.warn(error);
       enableFallback();
