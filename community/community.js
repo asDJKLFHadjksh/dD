@@ -33,6 +33,10 @@ setupCopyInteractions(latestContainer);
 setupCopyInteractions(listContainer);
 
 async function loadNotices() {
+  if (typeof showLoader === "function") {
+    showLoader();
+  }
+
   try {
     const response = await fetch(CSV_URL, { cache: "no-store" });
     if (!response.ok) {
@@ -58,6 +62,10 @@ async function loadNotices() {
     if (listContainer) {
       listContainer.innerHTML =
         '<p class="notice-error">Gagal memuat daftar postingan. Silakan refresh halaman.</p>';
+    }
+  } finally {
+    if (typeof hideLoader === "function") {
+      hideLoader();
     }
   }
 }
