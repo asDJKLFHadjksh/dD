@@ -38,7 +38,6 @@ async function loadTLR() {
     return;
   }
 
-  showLoader();
   try {
     const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
     if (!response.ok) {
@@ -59,8 +58,6 @@ async function loadTLR() {
     console.error("Gagal memuat data TLR:", error);
     listContainer.innerHTML =
       '<p class="tlr-empty">Gagal memuat data TLR. Silakan refresh halaman.</p>';
-  } finally {
-    hideLoader();
   }
 }
 
