@@ -206,6 +206,19 @@
   </style>
 </head>
 <body>
+  <div id="globalLoader" class="global-loader" aria-hidden="true">
+    <div class="global-loader__content" role="status" aria-live="polite">
+      <lottie-player
+        autoplay
+        loop
+        mode="normal"
+        background="transparent"
+      ></lottie-player>
+      <p class="global-loader__fallback" data-loader-fallback hidden>
+        Memuat data...
+      </p>
+    </div>
+  </div>
 
   <div class="container">
     <header>
@@ -221,9 +234,7 @@
       <div class="grid">
         <div class="card">
           <h3>Postingan</h3>
-          <div id="noticeLatest">
-            <p class="notice-empty">Memuat pemberitahuan...</p>
-          </div>
+          <div id="noticeLatest"></div>
           <a href="community/postingan.html" class="btn-outline">Lihat semua</a>
         </div>
 
@@ -263,6 +274,8 @@
     <img class="notice-lightbox__image" alt="Preview gambar" />
   </div>
 
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="assets/js/loader.js"></script>
   <script src="assets/js/link-list.js"></script>
   <script src="community/community.js"></script>
 </body>
