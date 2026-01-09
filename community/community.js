@@ -24,8 +24,7 @@ const LIGHTBOX_SCALE_MIN = 1;
 const LIGHTBOX_SCALE_MAX = 4.5;
 const LIGHTBOX_SCALE_STEP = 0.25;
 
-if ((latestContainer || listContainer) && !window.__communityInit) {
-  window.__communityInit = true;
+if (latestContainer || listContainer) {
   loadNotices();
 }
 
@@ -35,7 +34,7 @@ setupCopyInteractions(listContainer);
 
 async function loadNotices() {
   try {
-    const response = await fetchWithMiniLoader(CSV_URL, { cache: "no-store" });
+    const response = await fetch(CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
