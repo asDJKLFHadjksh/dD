@@ -1,74 +1,142 @@
 (() => {
   const LOADER_ID = "miniLoader";
-  const LOADER_HIDDEN_CLASS = "hidden";
-  const LOADER_VISIBLE_CLASS = "is-visible";
-  const LOADER_PATH = new URL(
-    "../assets/lottie/Loading.json",
-    document.baseURI
-  ).toString();
+  const ANIMATION_ID = "miniLoaderAnimation";
+  const LOADER_PATH = new URL("assets/lottie/Loading.json", document.baseURI).toString();
+  const ROOT_LOADER_PATH = new URL("/assets/lottie/Loading.json", document.baseURI).toString();
+  const RESOLVED_LOADER_PATH = LOADER_PATH.startsWith(`${window.location.origin}/assets/`)
+    ? LOADER_PATH
+    : ROOT_LOADER_PATH;
+  const LOTTIE_CDN = "https://unpkg.com/lottie-web/build/player/lottie.min.js";
   let loadingCount = 0;
-  let hasInitialized = false;
   let animationInstance = null;
-  let animationReady = false;
-  let animationFailed = false;
+  let lottieLoadPromise = null;
+
+  const ensureStyles = () => {
+    if (document.getElementById("miniLoaderStyles")) return;
+    const style = document.createElement("style");
+    style.id = "miniLoaderStyles";
+    style.textContent = `
+      #${LOADER_ID} {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        width: 56px;
+        height: 56px;
+        z-index: 9999;
+        display: none;
+        pointer-events: none;
+      }
+      #${LOADER_ID}.is-visible {
+        display: block;
+      }
+      #${LOADER_ID} .mini-loader__animation,
+      #${LOADER_ID} .mini-loader__fallback {
+        width: 100%;
+        height: 100%;
+      }
+      #${LOADER_ID} .mini-loader__fallback {
+        display: none;
+        box-sizing: border-box;
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        border-top-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        animation: miniLoaderSpin 0.9s linear infinite;
+      }
+      #${LOADER_ID}.use-fallback .mini-loader__animation {
+        display: none;
+      }
+      #${LOADER_ID}.use-fallback .mini-loader__fallback {
+        display: block;
+      }
+      @media (max-width: 640px) {
+        #${LOADER_ID} {
+          width: 44px;
+          height: 44px;
+        }
+      }
+      @keyframes miniLoaderSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  };
 
   const ensureLoader = () => {
-    if (hasInitialized) {
-      return document.getElementById(LOADER_ID);
-    }
+    let loader = document.getElementById(LOADER_ID);
+    if (loader) return loader;
 
-    const container = document.createElement("div");
-    container.id = LOADER_ID;
-    container.className = `mini-loader ${LOADER_HIDDEN_CLASS}`;
-    container.setAttribute("aria-hidden", "true");
+    ensureStyles();
+    loader = document.createElement("div");
+    loader.id = LOADER_ID;
+    loader.setAttribute("aria-hidden", "true");
 
     const animationHost = document.createElement("div");
+    animationHost.id = ANIMATION_ID;
     animationHost.className = "mini-loader__animation";
-    container.appendChild(animationHost);
 
-    document.body.appendChild(container);
-    hasInitialized = true;
+    const fallback = document.createElement("div");
+    fallback.className = "mini-loader__fallback";
+    fallback.setAttribute("aria-hidden", "true");
 
+    loader.appendChild(animationHost);
+    loader.appendChild(fallback);
+    document.body.appendChild(loader);
+    return loader;
+  };
+
+  const loadLottie = () => {
     if (window.lottie && typeof window.lottie.loadAnimation === "function") {
+      return Promise.resolve(window.lottie);
+    }
+    if (lottieLoadPromise) return lottieLoadPromise;
+    lottieLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = LOTTIE_CDN;
+      script.async = true;
+      script.onload = () => resolve(window.lottie);
+      script.onerror = () => reject(new Error("Gagal memuat lottie-web."));
+      document.head.appendChild(script);
+    });
+    return lottieLoadPromise;
+  };
+
+  const enableFallback = () => {
+    const loader = ensureLoader();
+    loader.classList.add("use-fallback");
+  };
+
+  const initLottie = async () => {
+    if (animationInstance) return;
+    try {
+      await loadLottie();
+      const container = document.getElementById(ANIMATION_ID);
+      if (!container || !window.lottie) {
+        enableFallback();
+        return;
+      }
       animationInstance = window.lottie.loadAnimation({
-        container: animationHost,
+        container,
         renderer: "svg",
         loop: true,
         autoplay: true,
-        path: LOADER_PATH,
+        path: RESOLVED_LOADER_PATH,
       });
-
-      animationInstance.addEventListener("DOMLoaded", () => {
-        animationReady = true;
-        updateVisibility();
-      });
-
-      animationInstance.addEventListener("data_failed", () => {
-        animationFailed = true;
-        container.classList.add(LOADER_HIDDEN_CLASS);
-        container.classList.remove(LOADER_VISIBLE_CLASS);
-        console.warn("Loader gagal memuat Loading.json.");
-      });
-    } else {
-      animationFailed = true;
-      console.warn("lottie-web belum tersedia untuk loader.");
+      animationInstance.addEventListener("data_failed", enableFallback);
+    } catch (error) {
+      console.warn(error);
+      enableFallback();
     }
-
-    return container;
   };
 
   const updateVisibility = () => {
     const loader = ensureLoader();
-    if (!loader || animationFailed) {
-      return;
-    }
-
     if (loadingCount > 0) {
-      loader.classList.remove(LOADER_HIDDEN_CLASS);
-      loader.classList.add(LOADER_VISIBLE_CLASS);
+      loader.classList.add("is-visible");
+      initLottie();
     } else {
-      loader.classList.add(LOADER_HIDDEN_CLASS);
-      loader.classList.remove(LOADER_VISIBLE_CLASS);
+      loader.classList.remove("is-visible");
     }
   };
 
@@ -84,18 +152,22 @@
 
   window.showLoader = showLoader;
   window.hideLoader = hideLoader;
-  window.__miniLoaderState = {
-    get count() {
-      return loadingCount;
-    },
-    get animation() {
-      return animationInstance;
-    },
-  };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", ensureLoader);
-  } else {
-    ensureLoader();
+  const originalFetch = window.fetch;
+  if (typeof originalFetch === "function" && !originalFetch.__miniLoaderPatched) {
+    const patchedFetch = (...args) => {
+      showLoader();
+      try {
+        return Promise.resolve(originalFetch(...args)).finally(hideLoader);
+      } catch (error) {
+        hideLoader();
+        throw error;
+      }
+    };
+    patchedFetch.__miniLoaderPatched = true;
+    window.fetch = patchedFetch;
   }
+
+  document.addEventListener("DOMContentLoaded", showLoader);
+  window.addEventListener("load", hideLoader);
 })();
