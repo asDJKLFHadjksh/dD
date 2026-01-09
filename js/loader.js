@@ -2,10 +2,15 @@
   const LOADER_ID = "miniLoader";
   const LOADER_HIDDEN_CLASS = "hidden";
   const LOADER_VISIBLE_CLASS = "is-visible";
-  const LOADER_PATH = "/Loading.json";
+  const LOADER_PATH = new URL(
+    "../assets/lottie/Loading.json",
+    document.baseURI
+  ).toString();
   let loadingCount = 0;
   let hasInitialized = false;
   let animationInstance = null;
+  let animationReady = false;
+  let animationFailed = false;
 
   const ensureLoader = () => {
     if (hasInitialized) {
@@ -24,7 +29,7 @@
     document.body.appendChild(container);
     hasInitialized = true;
 
-    if (window.lottie) {
+    if (window.lottie && typeof window.lottie.loadAnimation === "function") {
       animationInstance = window.lottie.loadAnimation({
         container: animationHost,
         renderer: "svg",
@@ -32,7 +37,20 @@
         autoplay: true,
         path: LOADER_PATH,
       });
+
+      animationInstance.addEventListener("DOMLoaded", () => {
+        animationReady = true;
+        updateVisibility();
+      });
+
+      animationInstance.addEventListener("data_failed", () => {
+        animationFailed = true;
+        container.classList.add(LOADER_HIDDEN_CLASS);
+        container.classList.remove(LOADER_VISIBLE_CLASS);
+        console.warn("Loader gagal memuat Loading.json.");
+      });
     } else {
+      animationFailed = true;
       console.warn("lottie-web belum tersedia untuk loader.");
     }
 
@@ -41,7 +59,7 @@
 
   const updateVisibility = () => {
     const loader = ensureLoader();
-    if (!loader) {
+    if (!loader || animationFailed) {
       return;
     }
 
@@ -64,17 +82,8 @@
     updateVisibility();
   };
 
-  const setLoaderLoading = (isLoading) => {
-    if (isLoading) {
-      showLoader();
-    } else {
-      hideLoader();
-    }
-  };
-
   window.showLoader = showLoader;
   window.hideLoader = hideLoader;
-  window.setLoaderLoading = setLoaderLoading;
   window.__miniLoaderState = {
     get count() {
       return loadingCount;
