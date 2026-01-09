@@ -28,7 +28,10 @@ let visibleItems = [];
 setupCopyInteractions(listContainer);
 setupLightbox();
 
-loadTLR();
+if (!window.__tlrInit) {
+  window.__tlrInit = true;
+  loadTLR();
+}
 
 searchInput.addEventListener("input", () => applyFilters());
 categorySelect.addEventListener("change", () => applyFilters());
@@ -39,7 +42,9 @@ async function loadTLR() {
   }
 
   try {
-    const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
+    const response = await fetchWithMiniLoader(TLR_CSV_URL, {
+      cache: "no-store",
+    });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
