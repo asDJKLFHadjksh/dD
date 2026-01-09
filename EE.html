@@ -734,7 +734,7 @@
             <div class="card-face card-front">
               ${isRekom?'<div class="ribbon">Rekomendasi</div>':''}
               <h3>${escapeHtml(pkg.name)}</h3>
-              <div class="meta">Revisi: ${pkg.revisions} • Durasi: ${pkg.durationText} • Waktu: ${pkg.leadTime}</div>
+              <div class="meta">Gratis Revisi: ${pkg.revisions} • Durasi Harga Tetap: ${pkg.durationText} • Deadline: ${pkg.leadTime}</div>
               <div class="price-box">
                 ${percent>0?`<span class="old-price">IDR ${numberWithSeparators(normal)}</span><span class="disc-badge">-${percent}%</span>`:''}
                 <div class="price">IDR ${numberWithSeparators(final)}</div>
