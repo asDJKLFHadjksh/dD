@@ -15,19 +15,6 @@
   <link rel="stylesheet" href="tlr.css" />
 </head>
 <body>
-  <div id="globalLoader" class="global-loader" aria-hidden="true">
-    <div class="global-loader__content" role="status" aria-live="polite">
-      <lottie-player
-        autoplay
-        loop
-        mode="normal"
-        background="transparent"
-      ></lottie-player>
-      <p class="global-loader__fallback" data-loader-fallback hidden>
-        Memuat data...
-      </p>
-    </div>
-  </div>
   <main class="tlr-wrapper">
     <a href="../index.html" class="tlr-back">← Kembali ke Beranda</a>
     <header class="tlr-header">
@@ -58,7 +45,9 @@
       </label>
     </section>
 
-    <section class="tlr-list" id="tlrList" aria-live="polite"></section>
+    <section class="tlr-list" id="tlrList" aria-live="polite">
+      <p class="tlr-empty">Memuat data TLR...</p>
+    </section>
   </main>
 
   <div class="tlr-lightbox" aria-hidden="true">
@@ -68,8 +57,6 @@
     <img class="tlr-lightbox__image" alt="Preview gambar" draggable="false" />
   </div>
 
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-  <script src="../assets/js/loader.js"></script>
   <script src="tlr.js"></script>
 </body>
 </html>

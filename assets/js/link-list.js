@@ -54,21 +54,15 @@
     });
   };
 
-  const loadLinks = async () => {
-    showLoader();
-    try {
-      const response = await fetch('config/links.json');
-      const data = await response.json();
+  fetch('config/links.json')
+    .then((response) => response.json())
+    .then((data) => {
       if (titleEl && data?.title) {
         titleEl.textContent = data.title;
       }
       renderLinks(data?.links);
-    } catch (error) {
+    })
+    .catch(() => {
       renderLinks();
-    } finally {
-      hideLoader();
-    }
-  };
-
-  loadLinks();
+    });
 })();
