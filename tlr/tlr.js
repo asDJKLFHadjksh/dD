@@ -249,63 +249,76 @@ function buildCard(item) {
   const card = document.createElement("article");
   card.className = "tlr-card";
 
+  const header = document.createElement("header");
+  header.className = "tlr-header";
+
   const title = document.createElement("h3");
+  title.className = "tlr-title";
   title.textContent = item.title;
-  card.appendChild(title);
+  header.appendChild(title);
 
   if (item.publishDate) {
     const meta = document.createElement("div");
-    meta.className = "tlr-card__meta";
+    meta.className = "tlr-publish-meta";
     meta.textContent = formatPublishDate(item.publishDate);
-    card.appendChild(meta);
+    header.appendChild(meta);
   }
 
-  if (item.categories.length) {
-    const badges = document.createElement("div");
-    badges.className = "tlr-badges";
-    item.categories.forEach((category) => {
-      const badge = document.createElement("span");
-      badge.className = "tlr-badge";
-      badge.textContent = category;
-      badges.appendChild(badge);
-    });
-    card.appendChild(badges);
-  }
+  card.appendChild(header);
 
   const evidenceBlock = buildEvidenceBlock(item);
   if (evidenceBlock) {
     card.appendChild(evidenceBlock);
   }
 
-  const materi = document.createElement("p");
-  materi.className = "tlr-card__materi";
+  const materi = document.createElement("div");
+  materi.className = "tlr-content";
   materi.appendChild(parseInteractiveMarkers(item.materi));
   card.appendChild(materi);
+
+  if (item.categories.length) {
+    const categories = document.createElement("div");
+    categories.className = "tlr-categories";
+    item.categories.forEach((category) => {
+      const chip = document.createElement("span");
+      chip.className = "tlr-category";
+      chip.textContent = category;
+      categories.appendChild(chip);
+    });
+    card.appendChild(categories);
+  }
 
   if (item.downloadLink) {
     const actions = document.createElement("div");
     actions.className = "tlr-actions";
 
-    const button = document.createElement("a");
+    const button = document.createElement("button");
+    button.type = "button";
     button.className = "tlr-download";
-    button.href = item.downloadLink;
-    button.target = "_blank";
-    button.rel = "noopener noreferrer";
     button.textContent = "Download File";
+    button.addEventListener("click", () => {
+      window.open(item.downloadLink, "_blank", "noopener,noreferrer");
+    });
     actions.appendChild(button);
 
     card.appendChild(actions);
   }
 
+  const statusDot = document.createElement("div");
+  statusDot.className = "tlr-status-dot";
+  if (item.isPinned) {
+    statusDot.classList.add("tlr-status-dot--pinned");
+  }
+  card.appendChild(statusDot);
+
   return card;
 }
 
 function formatPublishDate(date) {
-  return date.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `Publish: ${day}/${month}/${year}`;
 }
 
 function buildEvidenceBlock(item) {
