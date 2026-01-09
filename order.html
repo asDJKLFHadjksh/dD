@@ -108,10 +108,8 @@
     </section>
   </main>
 
-  <script src="js/loader.js" defer></script>
-  <script src="assets/js/pricing.js" defer></script>
+  <script src="assets/js/pricing.js"></script>
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
     const RAND_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     function randCode(len=6){ 
       let code=''; 
@@ -322,7 +320,6 @@
       const url=`https://wa.me/${phone}?text=`+encodeURIComponent(msg);
       window.location.href=url;
     }
-    });
   </script>
 </body>
 </html>

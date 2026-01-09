@@ -39,9 +39,7 @@ async function loadTLR() {
   }
 
   try {
-    const fetcher =
-      typeof fetchWithMiniLoader === "function" ? fetchWithMiniLoader : fetch;
-    const response = await fetcher(TLR_CSV_URL, { cache: "no-store" });
+    const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }

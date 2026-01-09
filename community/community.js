@@ -34,9 +34,7 @@ setupCopyInteractions(listContainer);
 
 async function loadNotices() {
   try {
-    const fetcher =
-      typeof fetchWithMiniLoader === "function" ? fetchWithMiniLoader : fetch;
-    const response = await fetcher(CSV_URL, { cache: "no-store" });
+    const response = await fetch(CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
