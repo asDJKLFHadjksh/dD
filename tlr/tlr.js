@@ -296,7 +296,7 @@ function buildCard(item) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "tlr-download";
-    button.textContent = "Download File";
+    button.textContent = "Download";
     button.addEventListener("click", () => {
       window.open(item.downloadLink, "_blank", "noopener,noreferrer");
     });
