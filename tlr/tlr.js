@@ -25,13 +25,30 @@ const lightboxState = {
 
 let visibleItems = [];
 
-setupCopyInteractions(listContainer);
-setupLightbox();
+const fetchWithLoader = window.fetchWithMiniLoader || fetch;
 
-loadTLR();
+if (!window.__tlrInit) {
+  window.__tlrInit = true;
+  initTLR();
+}
 
-searchInput.addEventListener("input", () => applyFilters());
-categorySelect.addEventListener("change", () => applyFilters());
+function initTLR() {
+  if (!listContainer) {
+    return;
+  }
+
+  setupCopyInteractions(listContainer);
+  setupLightbox();
+
+  loadTLR();
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => applyFilters());
+  }
+  if (categorySelect) {
+    categorySelect.addEventListener("change", () => applyFilters());
+  }
+}
 
 async function loadTLR() {
   if (!listContainer) {
@@ -39,7 +56,7 @@ async function loadTLR() {
   }
 
   try {
-    const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
+    const response = await fetchWithLoader(TLR_CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
