@@ -23,7 +23,6 @@ const lightboxState = {
 const LIGHTBOX_SCALE_MIN = 1;
 const LIGHTBOX_SCALE_MAX = 4.5;
 const LIGHTBOX_SCALE_STEP = 0.25;
-let noticesLoaded = false;
 
 if (latestContainer || listContainer) {
   loadNotices();
@@ -34,11 +33,6 @@ setupCopyInteractions(latestContainer);
 setupCopyInteractions(listContainer);
 
 async function loadNotices() {
-  if (noticesLoaded) {
-    return;
-  }
-  noticesLoaded = true;
-  window.showMiniLoader?.();
   try {
     const response = await fetch(CSV_URL, { cache: "no-store" });
     if (!response.ok) {
@@ -65,8 +59,6 @@ async function loadNotices() {
       listContainer.innerHTML =
         '<p class="notice-error">Gagal memuat daftar postingan. Silakan refresh halaman.</p>';
     }
-  } finally {
-    window.hideMiniLoader?.();
   }
 }
 
