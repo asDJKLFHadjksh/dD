@@ -80,9 +80,8 @@ body {
 }
 
 .tlr-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 22px;
+  column-count: 3;
+  column-gap: 16px;
 }
 
 .tlr-card {
@@ -93,8 +92,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: 100%;
   position: relative;
+  break-inside: avoid;
+  margin-bottom: 16px;
 }
 
 .tlr-header {
@@ -221,7 +221,7 @@ body {
 }
 
 .tlr-empty {
-  grid-column: 1 / -1;
+  column-span: all;
   text-align: center;
   color: var(--tlr-muted);
   font-size: 0.95rem;
@@ -364,5 +364,17 @@ body {
 
   .tlr-header h1 {
     font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .tlr-list {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .tlr-list {
+    column-count: 1;
   }
 }
