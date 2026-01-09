@@ -86,6 +86,7 @@ function parseItems(csvText) {
       materi: materi.trim(),
       categories: parseCategories(kategori),
       evidenceRaw: evidenceRaw.trim(),
+      publishLabel: publishRaw.trim(),
       publishDate: parseDate(publishRaw.trim()),
       downloadLink: downloadLink.trim(),
       isHidden: hideFlag.trim().toUpperCase() === "I",
@@ -257,10 +258,10 @@ function buildCard(item) {
   title.textContent = item.title;
   header.appendChild(title);
 
-  if (item.publishDate) {
+  if (item.publishLabel) {
     const meta = document.createElement("div");
     meta.className = "tlr-publish-meta";
-    meta.textContent = formatPublishDate(item.publishDate);
+    meta.textContent = formatPublishLabel(item.publishLabel);
     header.appendChild(meta);
   }
 
@@ -304,21 +305,15 @@ function buildCard(item) {
     card.appendChild(actions);
   }
 
-  const statusDot = document.createElement("div");
-  statusDot.className = "tlr-status-dot";
-  if (item.isPinned) {
-    statusDot.classList.add("tlr-status-dot--pinned");
-  }
-  card.appendChild(statusDot);
+  const pinDot = document.createElement("div");
+  pinDot.className = `pin-dot ${item.isPinned ? "pin-dot--on" : "pin-dot--off"}`;
+  card.appendChild(pinDot);
 
   return card;
 }
 
-function formatPublishDate(date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `Publish: ${day}/${month}/${year}`;
+function formatPublishLabel(label) {
+  return `Publish: ${label}`;
 }
 
 function buildEvidenceBlock(item) {

@@ -187,18 +187,21 @@ body {
   color: #fff;
 }
 
-.tlr-status-dot {
+.pin-dot {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: 16px;
+  bottom: 16px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
+}
+
+.pin-dot--off {
   background: var(--tlr-accent);
   box-shadow: 0 0 0 4px rgba(138, 78, 255, 0.15);
 }
 
-.tlr-status-dot--pinned {
+.pin-dot--on {
   background: #2bd671;
   box-shadow: 0 0 0 4px rgba(43, 214, 113, 0.2);
 }
