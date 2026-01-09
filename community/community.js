@@ -24,26 +24,17 @@ const LIGHTBOX_SCALE_MIN = 1;
 const LIGHTBOX_SCALE_MAX = 4.5;
 const LIGHTBOX_SCALE_STEP = 0.25;
 
-const fetchWithLoader = window.fetchWithMiniLoader || fetch;
-
-if (!window.__communityInit) {
-  window.__communityInit = true;
-  initCommunity();
+if (latestContainer || listContainer) {
+  loadNotices();
 }
 
-function initCommunity() {
-  if (latestContainer || listContainer) {
-    loadNotices();
-  }
-
-  setupLightbox();
-  setupCopyInteractions(latestContainer);
-  setupCopyInteractions(listContainer);
-}
+setupLightbox();
+setupCopyInteractions(latestContainer);
+setupCopyInteractions(listContainer);
 
 async function loadNotices() {
   try {
-    const response = await fetchWithLoader(CSV_URL, { cache: "no-store" });
+    const response = await fetch(CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
