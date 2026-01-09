@@ -1,15 +1,15 @@
-const TLR_CSV_URL =
+const TEH_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZiGRgDxVjlJupwCAb29TPzNlksU5kISHLkmfpqbdwO_NQ__PEOk8FxuHe_UwzxWe5pcnfTJ1MFX3b/pub?gid=273910268&single=true&output=csv";
 
-const TLR_MEDIA_BASE = "media/";
+const TEH_MEDIA_BASE = "media/";
 
-const searchInput = document.getElementById("tlrSearch");
-const categorySelect = document.getElementById("tlrCategory");
-const listContainer = document.getElementById("tlrList");
+const searchInput = document.getElementById("tehSearch");
+const categorySelect = document.getElementById("tehCategory");
+const listContainer = document.getElementById("tehList");
 const lightboxElements = {
-  overlay: document.querySelector(".tlr-lightbox"),
-  image: document.querySelector(".tlr-lightbox__image"),
-  closeButton: document.querySelector(".tlr-lightbox__close"),
+  overlay: document.querySelector(".teh-lightbox"),
+  image: document.querySelector(".teh-lightbox__image"),
+  closeButton: document.querySelector(".teh-lightbox__close"),
 };
 
 const lightboxState = {
@@ -28,12 +28,12 @@ let visibleItems = [];
 setupCopyInteractions(listContainer);
 setupLightbox();
 
-loadTLR();
+loadTEH();
 
 searchInput.addEventListener("input", () => applyFilters());
 categorySelect.addEventListener("change", () => applyFilters());
 
-async function loadTLR() {
+async function loadTEH() {
   if (!listContainer) {
     return;
   }
@@ -43,7 +43,7 @@ async function loadTLR() {
   }
 
   try {
-    const response = await fetch(TLR_CSV_URL, { cache: "no-store" });
+    const response = await fetch(TEH_CSV_URL, { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
@@ -59,9 +59,9 @@ async function loadTLR() {
     buildCategoryOptions(visibleItems);
     renderList(visibleItems);
   } catch (error) {
-    console.error("Gagal memuat data TLR:", error);
+    console.error("Gagal memuat data TEH:", error);
     listContainer.innerHTML =
-      '<p class="tlr-empty">Gagal memuat data TLR. Silakan refresh halaman.</p>';
+      '<p class="teh-empty">Gagal memuat data TEH. Silakan refresh halaman.</p>';
   } finally {
     if (typeof window.hideLoader === "function") {
       window.hideLoader();
@@ -245,7 +245,7 @@ function renderList(items) {
 
   if (!items.length) {
     listContainer.innerHTML =
-      '<p class="tlr-empty">Belum ada materi yang sesuai filter.</p>';
+      '<p class="teh-empty">Belum ada materi yang sesuai filter.</p>';
     return;
   }
 
@@ -256,19 +256,19 @@ function renderList(items) {
 
 function buildCard(item) {
   const card = document.createElement("article");
-  card.className = "tlr-card";
+  card.className = "teh-card";
 
   const header = document.createElement("header");
-  header.className = "tlr-header";
+  header.className = "teh-header";
 
   const title = document.createElement("h3");
-  title.className = "tlr-title";
+  title.className = "teh-title";
   title.textContent = item.title;
   header.appendChild(title);
 
   if (item.publishLabel) {
     const meta = document.createElement("div");
-    meta.className = "tlr-publish-meta";
+    meta.className = "teh-publish-meta";
     meta.textContent = formatPublishLabel(item.publishLabel);
     header.appendChild(meta);
   }
@@ -281,16 +281,16 @@ function buildCard(item) {
   }
 
   const materi = document.createElement("div");
-  materi.className = "tlr-content";
+  materi.className = "teh-content";
   materi.appendChild(parseInteractiveMarkers(item.materi));
   card.appendChild(materi);
 
   if (item.categories.length) {
     const categories = document.createElement("div");
-    categories.className = "tlr-categories";
+    categories.className = "teh-categories";
     item.categories.forEach((category) => {
       const chip = document.createElement("span");
-      chip.className = "tlr-category";
+      chip.className = "teh-category";
       chip.textContent = category;
       categories.appendChild(chip);
     });
@@ -299,11 +299,11 @@ function buildCard(item) {
 
   if (item.downloadLink) {
     const actions = document.createElement("div");
-    actions.className = "tlr-actions";
+    actions.className = "teh-actions";
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "tlr-download";
+    button.className = "teh-download";
     button.textContent = "Download";
     button.addEventListener("click", () => {
       window.open(item.downloadLink, "_blank", "noopener,noreferrer");
@@ -331,10 +331,10 @@ function buildEvidenceBlock(item) {
   }
 
   const wrapper = document.createElement("div");
-  wrapper.className = "tlr-evidence";
+  wrapper.className = "teh-evidence";
 
   if (isDrivePreview(evidence)) {
-    wrapper.classList.add("tlr-evidence--video");
+    wrapper.classList.add("teh-evidence--video");
     const iframe = document.createElement("iframe");
     iframe.src = evidence;
     iframe.title = item.title;
@@ -350,10 +350,10 @@ function buildEvidenceBlock(item) {
 
   const fileName = evidence;
   const extension = fileName.split(".").pop().toLowerCase();
-  const resolvedSrc = `${TLR_MEDIA_BASE}${fileName}`;
+  const resolvedSrc = `${TEH_MEDIA_BASE}${fileName}`;
 
   if (["mp4", "webm"].includes(extension)) {
-    wrapper.classList.add("tlr-evidence--video");
+    wrapper.classList.add("teh-evidence--video");
     const video = document.createElement("video");
     video.controls = true;
     video.src = resolvedSrc;
@@ -364,9 +364,9 @@ function buildEvidenceBlock(item) {
     return wrapper;
   }
 
-  wrapper.classList.add("tlr-evidence--media");
+  wrapper.classList.add("teh-evidence--media");
   const image = document.createElement("img");
-  image.className = "tlr-evidence-img";
+  image.className = "teh-evidence-img";
   image.src = resolvedSrc;
   image.alt = item.title;
   image.loading = "lazy";
@@ -571,7 +571,7 @@ function setupLightbox() {
   });
 
   document.addEventListener("click", (event) => {
-    const target = event.target.closest(".tlr-evidence-img");
+    const target = event.target.closest(".teh-evidence-img");
     if (!target) {
       return;
     }
@@ -675,7 +675,7 @@ function openLightbox(targetImage) {
   image.alt = targetImage.alt || "Preview gambar";
   overlay.classList.add("is-open");
   overlay.setAttribute("aria-hidden", "false");
-  document.body.classList.add("tlr-lightbox-open");
+  document.body.classList.add("teh-lightbox-open");
   resetLightboxTransform();
 }
 
@@ -687,7 +687,7 @@ function closeLightbox() {
   overlay.classList.remove("is-open");
   overlay.setAttribute("aria-hidden", "true");
   image.removeAttribute("src");
-  document.body.classList.remove("tlr-lightbox-open");
+  document.body.classList.remove("teh-lightbox-open");
   resetLightboxTransform();
 }
 
