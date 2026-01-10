@@ -1,15 +1,11 @@
 const TEH_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZiGRgDxVjlJupwCAb29TPzNlksU5kISHLkmfpqbdwO_NQ__PEOk8FxuHe_UwzxWe5pcnfTJ1MFX3b/pub?gid=273910268&single=true&output=csv";
-const TEH_GATE_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZiGRgDxVjlJupwCAb29TPzNlksU5kISHLkmfpqbdwO_NQ__PEOk8FxuHe_UwzxWe5pcnfTJ1MFX3b/pub?gid=273910268&range=2Z:2Z&single=true&output=csv";
 
 const TEH_MEDIA_BASE = "media/";
 
 const searchInput = document.getElementById("tehSearch");
 const categorySelect = document.getElementById("tehCategory");
 const listContainer = document.getElementById("tehList");
-const gateOverlay = document.getElementById("tehGate");
-const gateLottieContainer = document.getElementById("tehGateLottie");
 const lightboxElements = {
   overlay: document.querySelector(".teh-lightbox"),
   image: document.querySelector(".teh-lightbox__image"),
@@ -28,98 +24,14 @@ const lightboxState = {
 };
 
 let visibleItems = [];
-let isGateActive = false;
 
 setupCopyInteractions(listContainer);
 setupLightbox();
 
-initializeTehGate();
+loadTEH();
 
 searchInput.addEventListener("input", () => applyFilters());
 categorySelect.addEventListener("change", () => applyFilters());
-
-async function initializeTehGate() {
-  const gateValue = await fetchGateValue();
-  const TEH_ENABLED = gateValue === "O";
-
-  if (!TEH_ENABLED) {
-    activateGate();
-    return;
-  }
-
-  loadTEH();
-}
-
-async function fetchGateValue() {
-  try {
-    const response = await fetch(TEH_GATE_URL, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`Gate fetch gagal: ${response.status}`);
-    }
-    const csvText = await response.text();
-    const rows = parseCSV(csvText);
-    const flattened = rows.flat().map((cell) => cell.trim());
-    const value = flattened.find((cell) => cell.length) || "";
-    return value.toUpperCase();
-  } catch (error) {
-    console.error("Gagal membaca status TEH:", error);
-    return "I";
-  }
-}
-
-function activateGate() {
-  if (!gateOverlay) {
-    return;
-  }
-
-  isGateActive = true;
-  gateOverlay.classList.add("teh-gate--active");
-  gateOverlay.setAttribute("aria-hidden", "false");
-  document.body.classList.add("teh-gate-active");
-
-  if (gateLottieContainer && window.lottie) {
-    window.lottie.loadAnimation({
-      container: gateLottieContainer,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      path: "../assets/lottie/Loading.json",
-    });
-  }
-
-  document.addEventListener("keydown", blockEscape, true);
-  document.addEventListener("wheel", blockScroll, { passive: false });
-  document.addEventListener("touchmove", blockScroll, { passive: false });
-  document.addEventListener("click", blockInteractions, true);
-}
-
-function blockEscape(event) {
-  if (!isGateActive) {
-    return;
-  }
-  if (event.key === "Escape") {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-}
-
-function blockScroll(event) {
-  if (!isGateActive) {
-    return;
-  }
-  event.preventDefault();
-}
-
-function blockInteractions(event) {
-  if (!isGateActive) {
-    return;
-  }
-  if (gateOverlay?.contains(event.target)) {
-    return;
-  }
-  event.preventDefault();
-  event.stopPropagation();
-}
 
 async function loadTEH() {
   if (!listContainer) {
