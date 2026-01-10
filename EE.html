@@ -471,6 +471,7 @@
     const openOrderBtn=document.getElementById('openOrderBtn');
     const backupRequestBtn=document.getElementById('backupRequestBtn');
     const defaultOrderMessage='<p>Masukkan Code Order untuk menampilkan detail.</p>';
+    const STORAGE_KEY='order_tracker_last_input';
 
     let lastOrderData=null;
     let priceConfigCache=null;
@@ -601,6 +602,19 @@
       if(kodeInput) kodeInput.focus();
     }
 
+    function saveOrderInput(){
+      if(!kodeInput) return;
+      localStorage.setItem(STORAGE_KEY,kodeInput.value.trim());
+    }
+
+    function restoreOrderInput(){
+      if(!kodeInput) return;
+      const lastValue=localStorage.getItem(STORAGE_KEY)||'';
+      kodeInput.value=lastValue;
+      kodeInput.dispatchEvent(new Event('input',{bubbles:true}));
+      kodeInput.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+
     function tutupPopup(){
       if(!orderModal) return;
       orderModal.classList.remove('show');
@@ -701,12 +715,16 @@
 
     if(openOrderBtn) openOrderBtn.addEventListener('click',()=>{
       if(orderModalContent) orderModalContent.innerHTML=defaultOrderMessage;
-      if(kodeInput){ kodeInput.value=''; }
+      restoreOrderInput();
       hideBackupRequestButton();
       openOrderModal();
     });
-    if(searchBtn) searchBtn.addEventListener('click',cariData);
+    if(searchBtn) searchBtn.addEventListener('click',()=>{
+      saveOrderInput();
+      cariData();
+    });
     if(kodeInput) kodeInput.addEventListener('keyup',e=>{ if(e.key==='Enter') cariData(); });
+    if(kodeInput) kodeInput.addEventListener('input',saveOrderInput);
     if(orderModalClose) orderModalClose.addEventListener('click',tutupPopup);
     if(orderModal) orderModal.addEventListener('click',e=>{ if(e.target===orderModal) tutupPopup(); });
     document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&orderModal?.classList.contains('show')) tutupPopup(); });
