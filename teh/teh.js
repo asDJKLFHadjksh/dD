@@ -6,6 +6,11 @@ const TEH_MEDIA_BASE = "media/";
 const searchInput = document.getElementById("tehSearch");
 const categorySelect = document.getElementById("tehCategory");
 const listContainer = document.getElementById("tehList");
+const gateElements = {
+  overlay: document.getElementById("tehGate"),
+  lottieContainer: document.getElementById("tehGateLottie"),
+  lottieFallback: document.querySelector(".teh-gate__loader-fallback"),
+};
 const lightboxElements = {
   overlay: document.querySelector(".teh-lightbox"),
   image: document.querySelector(".teh-lightbox__image"),
@@ -27,6 +32,7 @@ let visibleItems = [];
 
 setupCopyInteractions(listContainer);
 setupLightbox();
+initTehGate();
 
 loadTEH();
 
@@ -48,6 +54,7 @@ async function loadTEH() {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
     const csvText = await response.text();
+    applyGateFromCSV(csvText);
     const items = parseItems(csvText);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -67,6 +74,99 @@ async function loadTEH() {
       window.hideLoader();
     }
   }
+}
+
+function initTehGate() {
+  if (!gateElements.overlay) {
+    return;
+  }
+
+  const lottieContainer = gateElements.lottieContainer;
+  const lottieFallback = gateElements.lottieFallback;
+  const lottiePath = new URL(
+    "../assets/lottie/Loading.json",
+    document.baseURI
+  ).toString();
+
+  if (window.lottie && lottieContainer) {
+    const animation = window.lottie.loadAnimation({
+      container: lottieContainer,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: lottiePath,
+    });
+
+    animation.addEventListener("DOMLoaded", () => {
+      lottieFallback?.classList.add("is-hidden");
+    });
+
+    animation.addEventListener("data_failed", () => {
+      console.warn("Gagal memuat lottie TEH gate:", lottiePath);
+    });
+  }
+}
+
+function applyGateFromCSV(csvText) {
+  const rows = parseCSV(csvText || "");
+  if (!rows.length) {
+    return;
+  }
+
+  const gateValue = findGateValue(rows);
+  const isGateActive = gateValue === "I";
+  toggleTehGate(isGateActive);
+}
+
+function toggleTehGate(isActive) {
+  if (!gateElements.overlay) {
+    return;
+  }
+  document.body.classList.toggle("teh-gate-active", isActive);
+  gateElements.overlay.classList.toggle("is-active", isActive);
+  gateElements.overlay.setAttribute("aria-hidden", isActive ? "false" : "true");
+}
+
+function findGateValue(rows) {
+  const header = rows[0] || [];
+  const headerIndex = header.findIndex(
+    (cell) => cell.trim().toUpperCase() === "2Z"
+  );
+  const candidateIndexes = [];
+  if (headerIndex !== -1) {
+    candidateIndexes.push(headerIndex);
+  }
+
+  const fallbackLabels = ["2Z", "Z", "BZ", "ZZ"];
+  fallbackLabels.forEach((label) => {
+    const index = columnLabelToIndex(label);
+    if (index !== null && !candidateIndexes.includes(index)) {
+      candidateIndexes.push(index);
+    }
+  });
+
+  for (const index of candidateIndexes) {
+    for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+      const value = (rows[rowIndex]?.[index] || "").trim().toUpperCase();
+      if (value === "I" || value === "O") {
+        return value;
+      }
+    }
+  }
+
+  return null;
+}
+
+function columnLabelToIndex(label) {
+  const letters = (label || "").replace(/[^A-Z]/gi, "").toUpperCase();
+  if (!letters) {
+    return null;
+  }
+  let index = 0;
+  for (let i = 0; i < letters.length; i += 1) {
+    index = index * 26 + (letters.charCodeAt(i) - 64);
+  }
+  return index - 1;
 }
 
 function parseItems(csvText) {
