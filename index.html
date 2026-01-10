@@ -203,6 +203,33 @@
       font-size: 0.8rem;
       color: var(--text-muted);
     }
+
+    .smart-404-banner {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #d93025;
+      color: #fff;
+      font-size: 13px;
+      z-index: 99999;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .smart-404-banner button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
@@ -262,6 +289,40 @@
     <img class="notice-lightbox__image" alt="Preview gambar" />
   </div>
 
+  <script>
+    const shouldShow404Banner = sessionStorage.getItem('show404Banner');
+
+    if (shouldShow404Banner) {
+      const badPath = sessionStorage.getItem('badPath');
+      sessionStorage.removeItem('show404Banner');
+      sessionStorage.removeItem('badPath');
+
+      const banner = document.createElement('div');
+      banner.className = 'smart-404-banner';
+      banner.setAttribute('role', 'alert');
+
+      const message = document.createElement('span');
+      message.textContent = badPath
+        ? `Link tidak ditemukan (${badPath}). Kamu diarahkan ke Beranda.`
+        : 'Link tidak ditemukan. Kamu diarahkan ke Beranda.';
+
+      const closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.setAttribute('aria-label', 'Tutup pemberitahuan');
+      closeButton.textContent = '✕';
+      closeButton.addEventListener('click', () => {
+        banner.remove();
+      });
+
+      banner.appendChild(message);
+      banner.appendChild(closeButton);
+      document.body.appendChild(banner);
+
+      setTimeout(() => {
+        banner.remove();
+      }, 5000);
+    }
+  </script>
   <script src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
   <script src="js/loader.js"></script>
   <script src="assets/js/link-list.js"></script>
