@@ -2,6 +2,8 @@ const TEH_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZiGRgDxVjlJupwCAb29TPzNlksU5kISHLkmfpqbdwO_NQ__PEOk8FxuHe_UwzxWe5pcnfTJ1MFX3b/pub?gid=273910268&single=true&output=csv";
 
 const TEH_MEDIA_BASE = "media/";
+const TEH_GATE_BPSS_KEYS = ["172119"];
+const TEH_GATE_BPSS_STORAGE_KEY = "teh_gate_bpss";
 
 const searchInput = document.getElementById("tehSearch");
 const categorySelect = document.getElementById("tehCategory");
@@ -32,6 +34,7 @@ let visibleItems = [];
 
 setupCopyInteractions(listContainer);
 setupLightbox();
+const isGateBpss = initTehGateBpss();
 initTehGate();
 
 loadTEH();
@@ -54,7 +57,9 @@ async function loadTEH() {
       throw new Error(`Fetch gagal: ${response.status}`);
     }
     const csvText = await response.text();
-    applyGateFromCSV(csvText);
+    if (!isGateBpss) {
+      applyGateFromCSV(csvText);
+    }
     const items = parseItems(csvText);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -74,6 +79,25 @@ async function loadTEH() {
       window.hideLoader();
     }
   }
+}
+
+function initTehGateBpss() {
+  const params = new URLSearchParams(location.search);
+  const key = params.get("key");
+  const isStoredBpss = localStorage.getItem(TEH_GATE_BPSS_STORAGE_KEY) === "1";
+  const isKeyValid = TEH_GATE_BPSS_KEYS.includes(key);
+  const shouldBpss = isStoredBpss || isKeyValid;
+
+  if (isKeyValid) {
+    localStorage.setItem(TEH_GATE_BPSS_STORAGE_KEY, "1");
+  }
+
+  if (shouldBpss) {
+    // URL key bpss gate
+    toggleTehGate(false);
+  }
+
+  return shouldBpss;
 }
 
 function initTehGate() {
