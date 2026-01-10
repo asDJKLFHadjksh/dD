@@ -446,7 +446,7 @@
       projectCode:1,
       orderDate:2,
       finishDate:3,
-      expireBackup:4,
+      backupExpired:4,
       title:5,
       statusProgress:7
     };
@@ -561,7 +561,7 @@
         projectCode:findIndex('code projek'),
         orderDate:findIndex('tanggal order'),
         finishDate:findIndex('tanggal selesai'),
-        expireBackup:findIndex('expire backup'),
+        backupExpired:findIndex('backup expired'),
         title:findIndex('judul'),
         status:(()=>{
           const statusFileIndex=findIndex('status file');
@@ -641,7 +641,7 @@
               statusProgres:getCellValue(dataRow,'statusProgress')||'',
               tanggalOrder:getCellValue(dataRow,'orderDate')||'-',
               tanggalSelesai:getCellValue(dataRow,'finishDate')||'-',
-              expireBackup:getCellValue(dataRow,'expireBackup')||'-',
+              backupExpired:getCellValue(dataRow,'backupExpired')||'-',
               statusFile:getCellValue(dataRow,'status')||'',
               codeProjek:getCellValue(dataRow,'projectCode')||'-',
               codeOrder:getCellValue(dataRow,'orderCode')||'-'
@@ -663,7 +663,7 @@
             html+=progressMarkup;
             html+=`<p><strong>Tanggal Order:</strong> ${escapeHtml(rowData.tanggalOrder)}</p>`;
             html+=`<p><strong>Tanggal Selesai:</strong> ${escapeHtml(rowData.tanggalSelesai)}</p>`;
-            html+=`<p><strong>Expire Backup:</strong> ${escapeHtml(rowData.expireBackup)}</p>`;
+            html+=`<p><strong>Backup Expired:</strong> ${escapeHtml(rowData.backupExpired)}</p>`;
             html+=`<p><strong>Status File:</strong> <span class="modal-status" style="${fileStatusStyle}">${escapeHtml(statusFileDisplay)}</span></p>`;
             html+=`<p><strong>Code Projek:</strong> ${escapeHtml(rowData.codeProjek)}</p>`;
             html+=`<p><strong>Code Order:</strong> ${escapeHtml(rowData.codeOrder)}</p>`;
