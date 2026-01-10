@@ -8,8 +8,13 @@ viewBox="0 0 3310.1 3310.1"
  <defs>
   <style type="text/css">
    <![CDATA[
-    .adaptive { fill: currentColor; }
+    :root { color-scheme: light dark; }
+    .adaptive { fill: #000000; }
     .fixed-gray { fill: #CCCCCC; }
+
+    @media (prefers-color-scheme: dark) {
+      .adaptive { fill: #FFFFFF; }
+    }
    ]]>
   </style>
  </defs>
