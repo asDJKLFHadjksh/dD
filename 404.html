@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" type="image/svg+xml" href="img/favicon_off.svg">
+
+  <title>404 — Kuhyakuya Studio</title>
+
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/theme-custom.css">
+
+  <style>
+    :root {
+      --accent: var(--site-accent);
+      --bg-main: var(--site-bg);
+      --text-main: var(--site-text);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+    }
+
+    .not-found {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .lottie-wrapper {
+      width: clamp(90px, 12vw, 120px);
+      height: clamp(90px, 12vw, 120px);
+    }
+
+    .home-link {
+      color: var(--accent);
+      font-size: 1rem;
+      text-decoration: none;
+      transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    }
+
+    .home-link:hover {
+      color: color-mix(in srgb, var(--accent) 85%, #ffffff 15%);
+      text-decoration: underline;
+      text-decoration-color: currentColor;
+    }
+
+    .fallback-text {
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+  <main class="not-found">
+    <div id="lottie" class="lottie-wrapper" aria-hidden="true"></div>
+    <div id="fallback" class="fallback-text">Halaman tidak ditemukan</div>
+    <a class="home-link" href="./index.html">Kuhyakuya Situs</a>
+  </main>
+
+  <script src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
+  <script>
+    const fallback = document.getElementById('fallback');
+    const lottieContainer = document.getElementById('lottie');
+
+    if (window.lottie && lottieContainer) {
+      window.lottie.loadAnimation({
+        container: lottieContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'assets/lottie/Loading.json'
+      });
+      fallback.style.display = 'none';
+    } else {
+      fallback.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
